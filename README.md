@@ -1,4 +1,4 @@
-Chatting App i made with MERN
+Chatting App I made with MERN
 
 frontEnd-React
 Backend-Express, Mongoose
