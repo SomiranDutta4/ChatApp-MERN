@@ -1,0 +1,105 @@
+.group-creation-container {
+    max-width: 800px;
+    min-width:350px;
+    width: 80vw;
+    max-height: 70vh;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  .group-creation-container.true{
+    filter: blur(4px);
+  }
+  .spinner-Group{font-size: 200%;}
+  
+  .group-creation-container h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .group-form {
+    margin-bottom: 20px;
+  }
+  
+  .group-form label {
+    font-weight: bold;
+  }
+  
+  .group-form input[type="text"] {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+  }
+  
+  .member-selection-container {
+    margin-bottom: 20px;
+    max-height: 50vh;
+    overflow-y: scroll;
+  }
+  .spinnerDiv-group{
+    z-index: 200;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+  }
+  .member-item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    border-radius: 5px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  .deselect-member-group{
+    padding: 4px;
+    border-radius: 2px;
+    cursor: pointer;
+    border: 0.1px solid grey;
+  }
+  .member-item.selected {
+    background-color: #a5a2a2;
+  }
+  
+  .create-group-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .create-group-button:hover {
+    background-color: #0056b3;
+  }
+  
+  .back-button {
+    margin-right: 10px;
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .back-button:hover {
+    background-color: #5a6268;
+  }
+  .errorDiv-Group{
+    position: absolute;
+    top: 1.8vh;
+    background-color: rgb(195, 93, 93);
+    color: white;
+    border-radius: 5px;
+    padding: 5px 9px 5px 9px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  

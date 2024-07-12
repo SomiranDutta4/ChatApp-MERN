@@ -1,0 +1,150 @@
+.ProfilePage-Container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100%;
+    /* background-color: #f0f0f0; */
+    background-color: #ffffffc4;
+
+  }
+  
+  .ProfilePage {
+    width: 85%;
+    max-width: 600px;
+    min-width: 400px;
+    padding: 20px;
+    /* background-color: #ffffff; */
+    background-color: #ffffffa5;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .ChangeDiv-Profile {
+    margin-bottom: 15px;
+  }
+  .labelEdit-img{margin-bottom: 1.5vh;position: relative;right: 3vh;}
+  .backDiv-Account{
+    position: absolute;
+    top: 1vh;
+    right: 1vw;
+  }
+  .back-btn-Acc{
+    background: transparent;
+    padding: 4px;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+    font-size: 140%;
+  }
+  .BasicDetails-Account{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: max-content;
+  }
+  .changeDiv-profilePhoto{
+    height: 22vh;
+    margin: 5px 10px 25px 10px;
+    display: flex;
+    justify-content: space-evenly;
+  }
+  .Details-span{
+    text-decoration: underline;
+    cursor: default;
+  }
+  .displayDetails-profile{
+    cursor: default;
+    font-size: 80%;
+  }
+  .ProfilePhotoDiv{
+    margin: 0 15px 0 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    width: max-content;
+}
+.PfP{height: 85%;
+aspect-ratio: 1;
+border: 0.1px solid rgba(166, 166, 166, 0.627);
+box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+border-radius: 50%;
+}
+  
+  .ChangeDiv-Profile input {
+    border: none;
+    /* border-color: grey; */
+    text-align: end;
+    width: 75%;
+
+    outline: none;
+    color:#0056b3;
+    cursor: default; 
+    padding: 8px;
+    
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .errorDiv-Settings{position: absolute;
+  top: 1.7vh;
+left: 50%;
+transform: translateX(-50%);
+color: white;
+background-color: rgb(209, 93, 93);
+padding: 5px 9px 5px 9px;
+border-radius: 5px;}
+  .editField-edit.true{
+    border: 0.1px solid rgba(128, 128, 128, 0.39);
+    background-color: #a9bdd1;
+    color: white;
+    width: 75%;
+  }
+  .edit-button.labelEdit-img{
+    cursor: pointer;
+  }
+  .EditBtn-profilePage {
+    padding: 8px 12px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+  }
+  .saveBtn-Acc{padding: 5px;color: blue;border: none;border-radius: 5px;cursor: pointer;}
+  .ChangeDiv-Profile.SaveDiv{
+    display: flex;
+    justify-content: center;
+  }
+  .EditBtn-profilePage:hover {
+    background-color: #0056b3;
+  }
+  
+  .CancelBtn-profileBtn {
+    aspect-ratio: 1;
+    padding: 8px;
+    background-color: #f6f3f3;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-left: 10px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+  
+  .CancelBtn-profileBtn:hover {
+    background-color: #ead2d5;
+  }
+  
+  /* Additional styling for edit mode */
+  
+  
+  .editField-edit:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  

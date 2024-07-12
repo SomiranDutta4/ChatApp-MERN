@@ -1,0 +1,114 @@
+.users-div-search {
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .user-list {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+  .user-info{
+    height: fit-content;
+  }
+  .user-avatar-div{
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0 10px 0 10px;
+    width: 20%;
+  }
+
+  .searchGlobal-btn {
+    border: 0.1px solid rgba(255, 253, 253, 0.507);
+    background-color: #3498db; /* Blue background color for messaging app */
+    color: #fff; /* White text color */
+    padding: 2px;
+    font-size: 80%;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .searchGlobal-btn:hover {
+    background-color: #ffffff; /* Darker shade of blue on hover */
+  }
+  
+  .searchGlobal-btn.true {
+    background-color: #00000024; /* Red background color when searching */
+  }
+  
+  .searchGlobal-btn.false {
+    background-color: #00000024; /* Green background color when not searching */
+  }
+  
+  
+  .SearchedGlobal-results{
+    width: 100%;
+    height: 100%;
+  }
+  .globalSearchBtn-div{
+    height: 7%;
+    align-items: center;
+    display: flex;
+    width: 100%;
+  }
+  .user-card  p,.user-card  h3{
+    margin: 4px 0 4px 0;
+  }
+  .user-card {
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.714);
+    border: 1px solid #dddddd6b;
+    display: flex;
+    align-items: center;
+    border-radius: 8px;
+    padding: 5px 10px 5px 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    height: 9vh;
+    width: 90%;
+  }
+  .user-card.Local{
+    background-color: rgba(135, 126, 195, 0.16);
+  }
+  .user-card.Global{
+    background-color: rgba(135, 126, 195, 0.16);
+  }
+  input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0; /* Optional - if you want to remove the default margin */
+}
+  .user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-avatar {
+    max-height: 100%;
+    max-width: 100%;
+    width: auto;
+    aspect-ratio: 1;
+    border-radius: 50%;
+  }
+  
+  .user-details {
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .user-details h3 {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .user-details p {
+    font-size: 14px;
+    color: #666666;
+  }
+  

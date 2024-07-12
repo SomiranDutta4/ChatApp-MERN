@@ -1,0 +1,401 @@
+/* Assuming these are your CSS classes based on the component structure */
+.chatdetailsContainer {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    height: 7.9vh;
+    border-bottom: 0.1px solid #ccc;
+  }
+  .chatDp{
+    display: flex;
+  }
+  .chatDetails {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  .optionDiv-particularMsg.false{
+    display: none;
+  }
+  .editMsg-container{
+    color: white;
+    height:1.5rem;
+  }
+  .LMdetails{
+    font-size: 85%;
+  }
+ .LMdetails.sentAt{
+  font-size: 70%;
+ }
+ .StartMsg{
+margin: 3px 5px 3px 10px; 
+font-size: 80%;
+color: rgb(182, 182, 234);
+}
+  #firstOption-msg{
+    border-top: 0.5px solid rgba(255, 255, 255, 0.132);
+    border-top-right-radius: 6px;
+    border-top-left-radius: 6px;
+  }
+  #lastOption-msg{
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+  }
+  .edit-Options{
+    background-color: rgb(20, 20, 20);
+    cursor: pointer;
+    padding: 4px;
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.132);
+    border-right: 0.5px solid rgba(255, 255, 255, 0.132);
+    border-left: 0.5px solid rgba(255, 255, 255, 0.132);
+  }
+  .successMessage{
+    padding: 4px;
+    background-color:rgb(112, 222, 112);
+    border-radius: 10px;
+    color: white;
+    position: absolute;
+    top: 4vh;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .optionDiv-particularMsg{
+    margin-left:5px ;
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    background-color: transparent;
+  }
+
+  .togglePass{
+    cursor: pointer;
+  }
+  .companyName{
+    color: rgba(255, 255, 255, 0.773);
+  }
+  .chatDisplay{
+    height: 100%;
+}
+.MainChat-chatName{
+  color: white;
+  font-size: 120%;
+}
+  .chatDpDiv {
+    margin-right: 10px;
+  }
+  
+  .chatDp img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  .chatNameDiv {
+    font-weight: bold;
+  }
+  
+  .chatMessages {
+    display: flex;
+    margin: 10px 0;
+  }
+  .byMe{
+    justify-content: flex-end;
+  }
+  .messageDiv-Msg{
+    background-color: #00ff917a;
+    padding: 8px 12px;
+  }  
+  /* .chatMessages div {
+    border-radius: 19px;
+    max-width: 65%;
+  } */
+  .chatMessages-options-Div.byMe{
+    padding-left: 10px ;
+  }
+  .chatMessages-options-Div {
+    display: flex;
+  }
+  .chatMessages-options-Div div{
+    border-radius: 19px;
+    max-width: 65vw;
+  }
+  .backBtnDiv{
+    margin-right: 8px;
+  }
+  .backbtn{
+    background: transparent;
+    color: white;
+    border: none;
+    padding: 3px;
+    cursor: pointer;
+  }
+  .chatInputContainerDiv {
+    position: fixed;
+    color: rgb(255, 255, 255);
+    height: 7.5vh;
+    bottom: 0;
+    right: 0;
+    background-color: #110707a8;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+  }
+  .chatDisplayContainer{
+    height: 84.4vh;
+    overflow-y: scroll;
+  }
+  .SearchDiv-Searchbar-sec{
+    height: 50%;
+  }
+  .inputMessageDiv{
+    width: 80%;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .message{
+    margin: 0 8px 0 8px;
+    width: fit-content;
+  }
+  .inputDisplay{
+    color: rgb(255, 255, 255);
+    width: 70%;
+    background-color: rgba(23, 19, 19, 0.748);
+    max-width: 700px;
+  }
+  .chatInputDiv {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  #notTyping{
+    margin-right: 5.65em;
+  }
+  #Typing{
+    margin-right: 10px;
+  }
+  .Cutbtn-SearchBar{
+    border: none;
+    color: rgba(255, 255, 255, 0.765);
+
+    position: relative;
+    right: 4vw;
+    display: flex;
+    align-items: center;
+    height: 60%;
+    border-radius: 8px;
+    cursor: pointer;
+    background: transparent;
+  }
+  .SearchBtn-SearchBar{
+    border: 0.2px solid white;
+    background-color: white;
+    color: rgb(0, 0, 0);
+    border-radius: 5px;
+    position: relative;
+    height: 100%;
+    margin-right: 2vh;
+  }
+  
+  .SearchDiv-SearchBar{
+    width: 90%;
+    height: 60%;
+    display: flex;
+    align-items: center;
+  }
+  .chatInputDiv input {
+    flex: 1;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+  
+  .chatInputDiv button {
+    padding: 8px 16px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .chatInputDiv button:hover {
+    background-color: #0056b3;
+  }
+  
+  .vertical-tabs-loading {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #ffffff; /* White background */
+  }
+  
+  .tab-item {
+    width: 90vw; /* 90% of the viewport width */
+    max-width: 500px; /* Maximum width to ensure reasonable size on large screens */
+    padding: 20px;
+    margin-bottom: 20px;
+    background-color: #f0f0f0; /* Light gray background */
+    border-radius: 8px;
+  }
+  
+  .loading-div {
+    height: 20px;
+    background-color: #e0e0e0; /* Lighter gray background */
+    margin-bottom: 10px;
+    animation: loading-animation 1.5s infinite;
+  }
+  
+  @keyframes loading-animation {
+    0% {
+      opacity: 0.5;
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0.5;
+    }
+  }
+  
+
+  .chat-side-window {
+    width: 50%; /* Half width of viewport */
+    height: 100vh; /* Full height of viewport */
+    background-color: #2c2c2c;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Center content vertically */
+    align-items: center; /* Center content horizontally */
+    border-left: 1px solid #ccc;
+  }
+  
+  .header {
+    background-color: #1b1b1b;
+    color: rgba(255, 255, 255, 0.64);
+    padding: 10px;
+    border: 1px solid #ffffff52;
+  }
+  
+  .messages {
+    color: rgba(255, 255, 255, 0.64);
+    text-align: center; /* Center text */
+    padding: 20px;
+  }
+  @media(min-width:850px){
+    .MainChatPage-Container{
+      width: 50%;
+    }
+    .chatDisplay{
+      width: 50%;
+    }
+    .chatInputContainerDiv{
+      width: 50%;
+    }
+  }
+  @media(max-width:850px){
+    .MainChatPage-Container{
+      width: 100%;
+    }
+    .chatDisplay{
+      width: 100%;
+    }
+    .chatInputContainerDiv{
+      width: 100%;
+    }
+  }
+.SearchBtn-SearchBar{
+  cursor: pointer;
+}
+.contact-div-onechat{
+  color: rgba(255, 255, 255, 0.855);
+  font-size: 80%;
+}
+  .no-chats-container {
+    text-align: center;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #333; /* Dark background color */
+    color: #fff; /* Light text color */
+    border-radius: 5px;
+    width: 80%;
+    max-width: 400px; /* Adjust width as per your design */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow */
+  }
+  
+  .no-chats-container h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .no-chats-container p {
+    font-size: 1.2rem;
+    opacity: 0.8; /* Optional: Reduce opacity for subtlety */
+  }
+  .latestMessage.LMdetails{
+    display: inline-block;
+    max-width: 9em;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  @media(min-width:800px){
+    .latestMessage.LMdetails{
+      max-width: 12em;
+    }
+  }
+  .editMsg-container{
+    z-index: 100;
+  }
+
+.NewEdited-msg.div{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  position: absolute;
+bottom: 0;
+right: 0;
+height: 7.5vh;
+z-index: 100;
+  background-color:#1f1f1f;
+  border-top: 1px solid rgba(255, 255, 255, 0.603);
+}
+.editInput-msg{
+  width: 68%;
+  padding: 5px;
+  border: 0.1px solid rgb(17 138 85);
+  border-radius: 5px;
+}
+.setIcon-edited{
+  padding: 5px;
+}
+.cancelEdit-btn{
+  padding: 3px 7px 3px 7px;
+  border-radius: 10px;
+  border: none;
+  color: white;
+  background-color: rgb(210, 105, 105);
+}
+@media(min-width:850px){
+  .NewEdited-msg.div{
+    width: 50%;
+  }
+}
+.senderName-group{font-size: 60%;padding: 4px;}
+.seenBy-div{transition: 0.5s linear;}
+.Chat-User{border: 0.1px solid rgba(28, 27, 27, 0.52);}
+.seenBy-div{position: absolute;top: 4vh;left: 50%;transform: translateX(-50%);color: white;transition: 1s linear;}
+.hasBeenSeen{cursor: pointer;}
+.hasBeenSeen:hover{
+  scale:(110%,110%);
+}
+.Details-span-ChatDetails{font-size: 150%;margin: 0 5px 0 5px;color: rgb(223, 108, 108);}
+@media(min-width:850px){
+  .seenBy-div{
+    right: 25vw;
+    transform: translateX(90%);
+  }
+}

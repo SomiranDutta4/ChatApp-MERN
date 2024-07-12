@@ -1,0 +1,195 @@
+import React,{useEffect,useState} from 'react'
+import IndChat from './indChats/IndChat'
+import { useNavigate } from 'react-router-dom'
+import LoadingScreen from './LoadingScreen'
+import {AppState} from '../Context/ContextProvider'
+
+const FetchedChats = ({isAdding,isSearch,setClicked,setloadAll,isindChat,setIndChat}) => {
+ 
+  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,}=AppState()
+  const navigate=useNavigate()
+
+  let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
+  let url=`http://localhost:2000/chat/get/all/?_id=${User._id}&token=${User.token}`
+
+  // const [AllChats,setChats]=useState([])
+  let getChats=async()=>{
+    let isFoundLocal=false
+    // let UserData=localStorage.getItem('UserData')
+
+    // try {
+    //   UserData=JSON.parse(UserData)
+    // } catch (error) {
+    //   UserData=''
+    //   localStorage.removeItem('UserData')
+    //   localStorage.removeItem('fetchedChats')
+    //   navigate('/Login')
+    //   return
+    // }
+    // if(!UserData || !UserData.token || !UserData._id){
+    //   setLoading(false)
+    //   console.log('no 2')
+    //   navigate('/Login')
+    //   return 
+    // }
+
+    // let url=`http://localhost:2000/chat/get/all/?_id=${UserData._id}&token=${UserData.token}`
+    // let alreadyFetched=localStorage.getItem('fetchedChats')
+    if(AllChats && AllChats!=''){
+      isFoundLocal=true
+    }
+
+    if(isFoundLocal==true){
+      let response=await fetch(AuthUrl)
+      if(response.status==200){
+        console.log(response)
+        
+      }else if(response.status(401)){
+        localStorage.removeItem('UserData')
+        setUser('')
+        setLoadedChats([])
+        setChats([])
+        navigate('/Login')
+        
+      }else{
+        setLoading(true)
+      }
+      return 
+      }else{
+        setLoading(true) 
+      }
+
+       
+      try {
+        let response=await fetch(url,{
+          method:'GET'
+        })
+        console.log(response)
+        if(response.status===401 ){
+          localStorage.removeItem('UserData')
+          setUser('')
+          setChats('')
+          navigate('/Login')
+          return
+        }else if(response.status==200){
+          let newchats=await response.json()
+          let chatsToSave=newchats.chats
+          chatsToSave.forEach(chat => {
+            console.log(chat)
+            if(chat.chatName==='randomXYZchatApp.123456789@#$%^&*()_+'){
+              if(chat.users[0]._id!=UserData._id){
+                chat.chatName=chat.users[0].name
+              }else{
+                chat.chatName=chat.users[0].name
+              }
+            }
+          });
+
+          console.log(chatsToSave)
+          setChats(chatsToSave)
+          console.log(AllChats)
+          // localStorage.setItem('fetchedChats',JSON.stringify(chatsToSave))
+        }else{
+          // setLoading(false)
+          return
+        }
+        setLoading(false)
+      } catch (error) {
+        console.log(error)
+      }
+    // try {
+      
+    //  let newlyFetched=JSON.parse(alreadyFetched)
+    //   setChats(newlyFetched)
+    //   if(newlyFetched.length>0){
+    //     isFoundLocal=true
+    //     console.log('found:',isFoundLocal)
+    //   }
+
+    //   if(isFoundLocal==true){
+    //   let response=await fetch(AuthUrl)
+    //   if(response.status==200){
+    //     console.log(response)
+    //     return
+    //   }else if(response.status(401)){
+    //     localStorage.removeItem('UserData')
+    //     localStorage.removeItem('fetchedChats')
+    //     localStorage.removeItem('indChats')
+    //     navigate('/Login')
+    //     return
+    //   }
+    //   }
+    // } catch (error) {
+    //   localStorage.removeItem('fetchedChats')
+    // }
+   
+    
+    // try {
+
+    //   let response=await fetch(url,{
+    //     method:'GET'
+    //   })
+    //   console.log(response)
+    //   if(response.status===401 ){
+    //     localStorage.removeItem('indChats')
+    //     localStorage.removeItem('UserData')
+    //     localStorage.removeItem('fetchedChats')
+    //     console.log('nooo')
+    //     navigate('/Login')
+    //   }else if(response.status==200){
+    //     let newchats=await response.json()
+    //     let chatsToSave=newchats.chats
+    //     chatsToSave.forEach(chat => {
+    //       console.log(chat)
+    //       if(chat.chatName==='randomXYZchatApp.123456789@#$%^&*()_+'){
+    //         if(chat.users[0]._id!=UserData._id){
+    //           chat.chatName=chat.users[0].name
+    //         }else{
+    //           chat.chatName=chat.users[0].name
+    //         }
+    //       }
+    //     });
+    //     console.log(chatsToSave)
+    //     setChats(chatsToSave)
+    //     console.log(AllChats)
+    //     localStorage.setItem('fetchedChats',JSON.stringify(chatsToSave))
+    //   }else{
+    //     setLoading(false)
+    //     return
+    //   }
+    //   setLoading(false)
+    // } catch (error) {
+    //   console.log(error)
+    // }
+    // console.log(AllChats)
+}
+
+
+  useEffect(()=>{
+    getChats()
+    console.log(isLoading)
+    console.log(AllChats.length)
+
+  },[])
+  return (
+   //fetched chats:
+    <div className={`AllChatsContainerDiv isAdding-${isAdding} isSearch-${isSearch}`}>
+      <div className='chatContainerOuter'>
+      {isLoading && <LoadingScreen/>}
+      {/* {!isLoading && <LoadingScreen/> } */}
+      {AllChats==[] &&
+      <div className="no-chats-container">
+      <h3>No chats yet</h3>
+      <p>Start messaging people to begin conversations!</p>
+    </div>
+       }
+      {!isLoading && AllChats.length>0 &&
+      AllChats.map((element)=>{
+        return <IndChat setClicked={setClicked} isindChat={isindChat} setIndChat={setIndChat} setLoading={setLoading} _id={element._id} setloadAll={setloadAll} key={element._id} chatName={element.chatName} lmContent={element.latestMessage.content} lmSender={element.latestMessage.sender.name} lmSentAt={element.latestMessage.createdAt} />
+      })}
+      </div>
+    </div>
+  )
+}
+
+export default FetchedChats

@@ -1,0 +1,202 @@
+import React, { useEffect, useState,useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import './ChatStyle.css'
+import OneMessage from './OneMessage'
+import { AppState } from '../Context/ContextProvider'
+
+const Onechat = ({setSingleChat,setloadAll}) => {
+    // isSingleChat,setSingleChat
+    const {clickedChat,setClicked,User,setUser}=AppState()
+    let indChats=localStorage.getItem('indChats')
+
+    let length=clickedChat.messages.length
+    const navigate=useNavigate()
+    let UserData=localStorage.getItem('UserData')
+    try {
+        UserData=JSON.parse(UserData)
+    } catch (error) {
+        localStorage.removeItem('UserData')
+        navigate('/Login')
+    }
+    
+    const [message,setMessage]=useState('')
+    // const [isTyping,setTyping]=useState(false)
+
+    const changeMessage=(event)=>{
+        setMessage(event.target.value)
+        // setTyping(true)
+    }
+    const messageEnd=useRef(null)
+    const sendMessage=async()=>{
+        let newMessage={
+            content:message,
+            createdAt:new Date(),
+            sender:UserData._id,
+        }
+        
+    const messageUrl=`http://localhost:2000/message/send/?token=${UserData.token}`
+    let response=await fetch(messageUrl,{
+        method:'PATCH',
+        headers: {
+            'Content-Type': 'application/json', // Specify content type JSON
+          },  
+        body:JSON.stringify({
+            content:message,
+            sender:UserData.name,
+            _id:UserData._id,
+            chat:clickedChat
+        })
+    })
+    
+    let data=await response.json()
+    let newChat={
+        _id:data.chat._id,
+        chatName:clickedChat.chatName,
+        isGroupChat:data.chat.isGroupChat,
+        users:data.chat.users,
+        latestMessage:data.chat.latestMessage
+    }
+    let fetchedNew
+    let fetchedChats=localStorage.getItem('fetchedChats')
+        try {
+            fetchedNew=JSON.parse(fetchedChats)
+            // fetchedNew.latestMessage=data.
+        } catch (error) {
+            fetchedNew=[]
+        }
+        if(!fetchedNew){
+            fetchedNew=[]
+        }
+        console.log('13',data,fetchedNew)
+
+    if(response.status==300){
+        fetchedNew.push(newChat)
+        localStorage.setItem('fetchedChats',JSON.stringify(fetchedNew))
+
+    }
+    // let indChats=localStorage.getItem('indChats')
+    let nowChat=clickedChat
+    nowChat.messages.push(newMessage)
+
+    try {
+        indChats=JSON.parse(indChats)
+        console.log('12')
+        let isLocal=false
+        indChats.forEach(chat => {
+            if(chat._id===clickedChat._id){
+                chat.messages.push(newMessage)
+                isLocal=true
+            }
+        });
+        if(isLocal===true){
+            localStorage.setItem('indChats',JSON.stringify(indChats))
+        }else{
+            indChats.push(clickedChat)
+            localStorage.setItem('indChats',JSON.stringify(indChats))
+        }
+    } catch (error) {
+        console.log(error)
+        indChats=[]
+        indChats.push(clickedChat)
+        localStorage.setItem('indChats',JSON.stringify(indChats))
+    }
+        
+
+        setMessage('')
+        setClicked(nowChat)
+
+        if(messageEnd.current){
+            messageEnd.current.scrollIntoView()
+        }
+       
+        for(let chat=0;chat<fetchedNew.length;chat++){
+            if(fetchedNew[chat]._id===clickedChat._id){
+                fetchedNew[chat].latestMessage=data.chat.latestMessage
+                localStorage.setItem('fetchedChats',JSON.stringify(fetchedNew))
+                console.log('hey?')
+                return
+            }
+        }
+       
+        console.log('done again')
+        fetchedNew.push(newChat)
+        localStorage.setItem('fetchedChats',JSON.stringify(fetchedNew))
+
+        
+     
+    }
+
+
+
+    const clickedBack=()=>{
+        setClicked('')
+        setloadAll(true)
+        setSingleChat(false)
+    }
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter' && message.trim()!='') {
+        sendMessage()
+    }
+  };
+useEffect(()=>{
+    console.log(clickedChat,'clicked')
+
+},[])
+ 
+    
+  return (
+    <div className='chatDisplay'>
+     <div className='chatdetailsContainer'>
+        <div className='backBtnDiv'><button onClick={clickedBack} className='backbtn'>&#8592;</button></div>
+        <div className='chatDetails'>
+            <div className='chatDpDiv'>
+                <div className='chatDp'>
+                    <img src={clickedChat.pic}/>
+                </div>
+            </div>
+            <div className='chatNameDiv'>
+                <div className='chatName'>
+                    <span className='MainChat-chatName'>{clickedChat.chatName}</span>
+                    {clickedChat.isGroupChat===false && <div className='contact-div-onechat'>{clickedChat.number}</div>}
+                    {clickedChat.isGroupChat===true && <div className='contact-div-onechat'>{
+                        clickedChat.number.map((member)=>{
+                            return <span>{member}</span>
+                        })
+                        }</div>}
+                </div>
+            </div>
+        </div>
+     </div>
+
+     <div className='chatDisplayContainer'>
+        {length>0 &&
+            clickedChat.messages.map((element) => {
+                if(UserData)
+                return <OneMessage key={element._id} message={element.content} messageId={element._id} chatId={clickedChat._id} indChats={indChats}
+                userToken={UserData.token} setClicked={setClicked} clickedChat={clickedChat}
+                sender={UserData._id===element.sender._id?'byMe':UserData._id===element.sender?'byMe':'byThem'}
+                />
+            })
+        }
+        <div ref={messageEnd}></div>
+      
+     </div>
+
+     <div className='chatInputContainerDiv'>
+        <div className='chatInputDiv'>
+            <div>
+                <span>More</span>
+            </div>
+            <div className='inputMessageDiv'>
+                <input className='inputDisplay' id={message!=''?'isTyping':'notTyping'} onChange={changeMessage} value={message} onKeyDown={handleKeyPress} placeholder='Enter Message'/>
+                {message!='' && <button onClick={sendMessage} className='sendBtn'>Send</button>}
+
+            </div>
+        </div>
+     </div>
+    </div>
+  )
+}
+
+export default Onechat
