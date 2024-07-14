@@ -18,7 +18,6 @@ const FetchedChats = ({isAdding,isSearch,setClicked,setloadAll,isSingleChat,setS
 
     
     let isFoundLocal=false
-    // let UserData=localStorage.getItem('UserData')
 
     if(AllChats && AllChats!=''){
       isFoundLocal=true
@@ -115,7 +114,7 @@ const FetchedChats = ({isAdding,isSearch,setClicked,setloadAll,isSingleChat,setS
        }
       {!isLoading && AllChats.length>0 &&
       AllChats.map((element)=>{
-        return <IndChat isGroupChat={element.isGroupChat} setClicked={setClicked} isSingleChat={isSingleChat} setSingleChat={setSingleChat} setLoading={setLoading} _id={element._id} pic={element.pic} setloadAll={setloadAll} key={element._id} chatName={element.chatName} lmContent={element.latestMessage?.content} lmSender={element.latestMessage.sender?.name} lmSentAt={element.latestMessage.createdAt} />
+        return <IndChat unreadMsg={element.unreadMessagesCount?element.unreadMessagesCount:0} isGroupChat={element.isGroupChat} setClicked={setClicked} isSingleChat={isSingleChat} setSingleChat={setSingleChat} setLoading={setLoading} _id={element._id} pic={element.pic} setloadAll={setloadAll} key={element._id} chatName={element.chatName} lmContent={element.latestMessage?.content} lmSender={element.latestMessage.sender?.name} lmSentAt={element.latestMessage.createdAt} />
       })}
       </div>
     </div>

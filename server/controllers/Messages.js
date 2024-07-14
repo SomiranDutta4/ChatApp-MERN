@@ -43,6 +43,7 @@ module.exports.sendMessage=async function(req,res){
                 chatName:'randomXYZchatApp.123456789@#$%^&*()_+',
                 isGroupChat:false,
                 users:users,
+                pastUsers:[],
                 messages:[{
                     _id:newMessageId,
                     sender:req.body._id,
@@ -86,8 +87,8 @@ module.exports.sendMessage=async function(req,res){
     }
 
 
-module.exports.seeMessage=()=>{
-    Chat.findById(req.body.ChatId).then(chat=>{
+module.exports.seeMessage=function(req,res){
+    Chat.findOne({'_id':req.body.chatId}).then(chat=>{
         if(chat){
             for(let i=chat.messages.length-1;i>=0;i--){
             if((chat.messages[i].readBy).includes(req.user._id)){
@@ -97,8 +98,16 @@ module.exports.seeMessage=()=>{
             }
             }
             chat.save()
-            return res.status(200).json({message:'read all messages'})
+            .then(()=>{
+                return res.status(200).json({message:'read all messages'})
+            })
+            .catch(err=>{
+                console.log(err)
+                return res.status(500).json({message:'err'})
+            })
         }else{
+            console.log('1')
+
             return res.status(400).json({messages:'some error>>'})
         }
     }).catch(err=>{
@@ -113,7 +122,6 @@ module.exports.deleteMessage=async function(req,res){
             {$set:{'messages.$[elem].content':'message was deleted','messages.$[elem].isDeleted':true}},
             {new:true,arrayFilters:[{'elem._id':req.body.messageId}]}
         )
-        console.log(updatedChat)
         if(!updatedChat){
             return res.status(400).json({ message: 'No message found' });
         }
@@ -130,7 +138,6 @@ module.exports.deleteMessage=async function(req,res){
 }
 
 module.exports.editMessage=async function(req,res){
-    console.log(req.body)
 
     try {
 

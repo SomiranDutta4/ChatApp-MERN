@@ -10,7 +10,9 @@
   }
   
   .ProfilePage {
+    height: 40vh;
     width: 85%;
+    display: flex;
     max-width: 600px;
     min-width: 400px;
     padding: 20px;
@@ -45,7 +47,8 @@
     width: max-content;
   }
   .changeDiv-profilePhoto{
-    height: 22vh;
+    height: 100%;
+    width: 100%;
     margin: 5px 10px 25px 10px;
     display: flex;
     justify-content: space-evenly;
@@ -65,7 +68,7 @@
     align-items: center;
     width: max-content;
 }
-.PfP{height: 85%;
+.PfP{height: 55%;
 aspect-ratio: 1;
 border: 0.1px solid rgba(166, 166, 166, 0.627);
 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -147,4 +150,8 @@ border-radius: 5px;}
     border-color: #80bdff;
     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
   }
-  
+  @media(max-width:1000px){
+
+
+.PfP{height: 40%;}  }
+.labelEdit-img{top: -3vh;}

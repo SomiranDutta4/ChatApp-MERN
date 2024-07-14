@@ -8,7 +8,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
 
   let {
     User,setUser,LoadedChats,setLoadedChats,setChats,
-    setClicked,setLoadingChat,clickedChat
+    setClicked,setLoadingChat,clickedChat,unreadMsg
   }=useContext(AppContext)
   const navigate=useNavigate()
 
@@ -101,6 +101,8 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
         "_id":data._id,
         "messages":data.messages,
         'users':data.users,
+        'GroupAdmins':data.groupAdmins,
+        'createdBy':data.createdBy
       }
       let Chats=LoadedChats
       Chats.push(newChat)
@@ -166,6 +168,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
             <span className='sentAt LMdetails'>
               {timePassed}
             </span>
+            <div className='unreadMsg-chat'>{unreadMsg}</div>
             </div>
         </div>
       </div>

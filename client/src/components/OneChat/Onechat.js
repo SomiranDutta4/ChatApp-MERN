@@ -28,9 +28,17 @@ const Onechat = ({setSingleChat,setloadAll}) => {
     
 
     let SeeMessage=()=>{
-        let seenUrl=`http://localhost:2000/message/see/${User.token}`
+        let seenUrl=`http://localhost:2000/message/see/?token=${User.token}`
         try {
-            fetch(seenUrl)
+            fetch(seenUrl,{
+                method:'PATCH',
+                headers: {
+                    'Content-Type': 'application/json', // Specify content type JSON
+                  },
+                body:JSON.stringify({
+                    chatId:clickedChat._id
+                })
+            })
         } catch (error) {
             console.log(error)
         }

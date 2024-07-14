@@ -25,11 +25,11 @@ const SearchedUsers = (
     setGlobalSearch(false)
     }
   }
-  let clickedUser=()=>{
-    if(!foundUser.data){
-      return
-    }
-  }
+  // let clickedUser=()=>{
+  //   if(!foundUser.data){
+  //     return
+  //   }
+  // }
   let clickOn={
     backgroundColor:'#477147'
   }

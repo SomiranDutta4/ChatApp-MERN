@@ -1,9 +1,8 @@
-const Message=require('../Models/Message')
 const Chat=require('../Models/Chat')
 const User=require('../Models/User')
 const mongoose=require('mongoose')
 
-module.exports.fetchAllChats=function(req,res){
+module.exports.fetchAllChats=async function(req,res){
     Chat.find({$or:[
         {'users':req.query._id},
         {'users._id':req.query._id}
@@ -11,16 +10,17 @@ module.exports.fetchAllChats=function(req,res){
     .populate('users','-password')
     .populate('latestMessage.sender','name pic contactNumber')
     .then(chats=>{
-        // chats.save()
         if(chats.length==0){
             return res.status(200).json({"chats":[],message:'not chatted yet'})
         }
         return res.status(200).json({"chats":chats,message:'fetched successfully'})
     })
     .catch(err=>{
+        console.log(err)
         return res.status(500).json({message:'error in server Side'})
     })
 }
+
 
 module.exports.ClickedChat=function(req,res){
     // req.query._id,
@@ -30,9 +30,7 @@ module.exports.ClickedChat=function(req,res){
     .populate('messages.readBy','-password')
     .populate('createdBy','-password')
     .populate('groupAdmins','-password')
-    // .populate('latestMessage.sender','name pic contactNumber')
     .then(chat=>{
-        // console.log('chat is here u fucking moron:...',chat)
         if(!chat){
             return res.status(400).json({message:'send the first message'})
         }
@@ -173,19 +171,25 @@ module.exports.editGroupName=function(req,res){
     })
 }
 
-module.exports.addAdmin=function(req,res){
+module.exports.addAdmin=async function(req,res){
     //req.body.newAdmin: _id of user
     //req.bdy.chatId
-    Chat.findOne({_id:req.body._id,users:req.body.newAdmin,groupAdmins:req.user._id}).then(chat=>{
-        chat.groupAdmins.push(req.body.newAdmin)
-    }).populate('groupAdmins')
-    return res.json({message:'added new admin'})
+    try {
+        let chat=await Chat.findOne({_id:req.body.chatId,users:req.body.newAdmin,groupAdmins:req.user._id})
+        if(chat){
+            chat.groupAdmins.push(req.body.newAdmin) 
+            chat.save()
+        }
+        return res.status(200).json({message:'added new admin'})
+    } catch (error) {
+        return res.status(500).json({message:'some error occured'})
+    }
 }
 module.exports.removeAdmin=function(req,res){
     //req.Admin
     //req.bdy.chatId
     Chat.findoneAndUpdate(
-        {_id:req.body._id,users:req.body.Admin,groupAdmins:req.user._id},
+        {_id:req.body.chatId,users:req.body.Admin,groupAdmins:req.user._id},
         {$pull:{groupAdmins:req.body.Admin}},
         {new:true}
     ).then(chat=>{
@@ -218,16 +222,16 @@ module.exports.addMember=function(req,res){
 }
 
 module.exports.removeMember=function(req,res){
-    //req.query._id
-    //req.body.adminId
-    //req.query.removed Member
+    //req.body.chatId
+    //req.body.memberId
     Chat.findoneAndUpdate({
-        _id:req.body._id,
+        _id:req.body.chatId,
         groupAdmins:req.user._id,
-        createdBy:{$ne:req.body.member}
+        createdBy:{$ne:req.body.memberId}
     },
     {
-        $pull:{users:req.body.member}
+        $pull:{users:req.body.memberId},
+        $push:{pastUsers:{member:req.body.memberId,lastMessage:req.body.lastMessage}}
     },
     {new:true}
 ).then(chat=>{
@@ -236,33 +240,7 @@ module.exports.removeMember=function(req,res){
 }).catch(err=>{return res.status(500).json({message:'internal error'})})
 }
 
-// let Message={
-//     messages:Messages,
-//     id:'3245vvc34rgg4r4hur89',
-//     chatName:'John Doe'
-//   }
-// module.exports.CreateGroupChat=function(req,res){
-// }
-
-// messages:[messageSchema],
-
-// const messageSchema = mongoose.Schema(
-//     {
-//       sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-//       content: { type: String, trim: true },
-//       readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-//     },
-//     { timestamps: true }
-//   );
-  
-// chatName: { type: String, trim: true },
-// isGroupChat: { type: Boolean, default: false },
-// users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-// latestMessage: {
-//   type: mongoose.Schema.Types.ObjectId,
-//   ref: "Message",
-// },
-// groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-// },
-// { timestamps: true }
-// );
+// pastUsers:[{
+//     member:{type:String},
+//     lastMessage:{type:String},
+//   }],

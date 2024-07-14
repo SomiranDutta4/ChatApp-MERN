@@ -6,6 +6,6 @@ const Auth=require('../middleware/Auth')
 MessageRouter.patch('/send/',Auth,MessageController.sendMessage)
 MessageRouter.delete('/delete/',Auth,MessageController.deleteMessage)
 MessageRouter.patch('/edit/',Auth,MessageController.editMessage)
-MessageRouter.get('/see/',Auth,MessageController.seeMessage)
+MessageRouter.patch('/see/',Auth,MessageController.seeMessage)
 
 module.exports=MessageRouter

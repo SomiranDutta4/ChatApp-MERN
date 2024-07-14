@@ -386,16 +386,69 @@ z-index: 100;
 }
 .senderName-group{font-size: 60%;padding: 4px;}
 .seenBy-div{transition: 0.5s linear;}
-.Chat-User{border: 0.1px solid rgba(28, 27, 27, 0.52);}
+.Chat-User{border: 0.1px solid rgba(28, 27, 27, 0.52);justify-content: space-between;}
 .seenBy-div{position: absolute;top: 4vh;left: 50%;transform: translateX(-50%);color: white;transition: 1s linear;}
 .hasBeenSeen{cursor: pointer;}
 .hasBeenSeen:hover{
   scale:(110%,110%);
 }
-.Details-span-ChatDetails{font-size: 150%;margin: 0 5px 0 5px;color: rgb(223, 108, 108);}
+.Details-span-ChatDetails{font-size: 150%;margin: 0 5px 0 5px;color: rgb(74, 61, 61);}
 @media(min-width:850px){
   .seenBy-div{
     right: 25vw;
     transform: translateX(90%);
   }
 }
+.Details-span-ChatDetails.GroupChat{
+  font-size: 120%;
+  color: black;
+}
+.Chat-User {
+  width: 100%;
+  display: flex;
+  align-items: center; /* Align items vertically */
+  margin-bottom: 4px; /* Adjust as needed */
+  border-radius: 4px;
+}
+
+.Details-span-ChatDetails {
+  margin-right: 10px; /* Spacing between name/contactNumber and Admin label */
+}
+
+.Details-span-ChatDetails p {
+  margin: 0; /* Remove default margins */
+}
+
+.AdminLabel {
+  margin-left: auto; /* Push Admin label to the right */
+  background-color: #f0f0f0; /* Example background color */
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+.BasicDetails-ChatPage{
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: max-content;
+  max-height: 100%;
+}
+.displayDetails-ChatPage{
+  cursor: default;
+  font-size: 80%;
+  height: 2.35em;
+}
+.displayDetails-profile{
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; 
+  max-height: 75%;
+  overflow-y: scroll;
+}
+.AddMember-ChatGrp{cursor: pointer; margin: 5px 0 5px 0;border-radius: 5px;border: 0.1px solid rgba(0, 0, 0, 0.482); padding: 1.5px 3px 1.5px 3px;}
+.isAdmin-Chat{color: rgb(88, 87, 87);margin: 0 6px 0 6px;}
+.MemberEditBtn-chat{margin: 0 6px 0 6px;border: none;}
+.BasicDetails-ChatPage{width: 60%;}
+.AdminsEditor{position: absolute;top: 5vh;width: 50%;max-width: 500px;left: 50%;transform: translateX(-50%)}
+.AdminsOptions{padding: 4px 6px;border-radius: 3px;border: 0.1px solid rgba(0, 0, 0, 0.526);}

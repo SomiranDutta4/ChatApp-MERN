@@ -10,7 +10,6 @@ const messageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-
 const chatModel = new mongoose.Schema(
   {
     pic: {
@@ -22,6 +21,10 @@ const chatModel = new mongoose.Schema(
     chatName: { type: String, trim: true },
     isGroupChat: { type: Boolean,required: true, default: false },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    pastUsers:[{
+      member:{type:String},
+      lastMessage:{type:String},
+    }],
     messages:[messageSchema],
     latestMessage:messageSchema,
     createdBy:[{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
