@@ -14,7 +14,6 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
     const [oldPass,setOldPass]=useState({prev:'',now:''})
     const [loaded,setLoaded]=useState(false)
     const [hasEdited,setEdited]=useState(false)
-
     const [isEditingName,setEditName]=useState(false)
     const [isEditingNumber,setEditNumber]=useState(false)
     const [isEditingPass,setEditPass]=useState(false)
@@ -155,8 +154,8 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
             setEditOldPass(false)
         }else{
             setNumber({
-                prev:name.now,
-                now:name.now
+                prev:Number.now,
+                now:Number.now
             })
             cancelAll()
         }
@@ -241,6 +240,13 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
         setSingleChat(false)
         setAccountPage(false)
     }
+    const LogOut=()=>{
+        localStorage.removeItem('UserData')
+        setChats([])
+        setUser('')
+        navigate('/Login')
+        window.location.reload()
+    }
     useEffect(()=>{
         if(User && loaded===false){
             console.log('hey')
@@ -258,12 +264,14 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
          <span>{error}</span>
      </div>
         }
-
+        <div className='LogOut-Account'>
+            <button onClick={LogOut} className='back-btn-Acc'>LogOut</button>
+        </div>
         <div className='backDiv-Account'>
             <button onClick={goBack} className='back-btn-Acc'>Back→</button>
         </div>
-        <div className='ProfilePage'>
-            <div className='changeDiv-profilePhoto'>
+        <div className='ProfilePage Account'>
+            <div className='changeDiv-profilePhoto Account'>
                 <div className='ProfilePhotoDiv'>
                     <img className='PfP' src={User.pic}></img>
                     <div style={{height:"100%", display:'flex',alignItems:'flex-end'}}>
@@ -280,7 +288,7 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
                 </div>
             </div>
             
-            <div className='ChangeDiv-Profile'>
+            <div className='ChangeDiv-Profile Account'>
             {User.name && 
                 <input onChange={changeName} className={`editField-edit name ${isEditingName} `} value={name.now}></input>
             }
@@ -289,7 +297,7 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
                 <button onClick={CancelName} className='CancelBtn-profileBtn'>❌</button>}
             </div>
 
-            <div className='ChangeDiv-Profile'>
+            <div className='ChangeDiv-Profile Account'>
                 {User.contactNumber &&
                     <input onChange={changeNumber} className={`editField-edit number ${isEditingNumber} `} value={Number.now}></input>
                 }
@@ -298,14 +306,14 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
                 <button onClick={CancelNumber} className='CancelBtn-profileBtn'>❌</button>}
             </div>
            
-            <div className='ChangeDiv-Profile'>
+            <div className='ChangeDiv-Profile Account'>
                 <input onChange={changeOldPass} className={`editField-edit password ${isEditingOldPass} `} value={oldPass.now}></input>
                 <button onClick={editOldPassword}  className='EditBtn-profilePage'>{isEditingOldPass===true?'Save':'Edit'}</button>
                 {isEditingOldPass===true &&
                 <button onClick={CancelOldPass} className='CancelBtn-profileBtn'>❌</button>}
             </div>
 
-            <div className='ChangeDiv-Profile'>
+            <div className='ChangeDiv-Profile Account'>
                 <input onChange={changePass} className={`editField-edit password ${isEditingPass} `} value={password.now}></input>
                 <button onClick={EditPass}  className='EditBtn-profilePage'>{isEditingPass===true?'Save':'Edit'}</button>
                 {isEditingPass===true &&

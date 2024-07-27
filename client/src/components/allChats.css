@@ -237,4 +237,4 @@ margin: 3px 5px 3px 5px;
     margin-bottom: 10px;
     font-size: 16px;
   }
-  .unreadMsg-chat{border-radius: 50%;padding: 1.5px;aspect-ratio: 1;background-color: red;color: white;}
+  .unreadMsg-chat{height: 1.3em;width: 1.3em;border-radius: 50%;display: flex;align-items: center;justify-content: center; background-color: rgba(255, 0, 93, 0.835);margin: 0 7px 0 5px;}

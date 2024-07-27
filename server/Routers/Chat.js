@@ -10,5 +10,7 @@ chatRouter.post('/new/group/',Auth,ChatController.createGroup)
 chatRouter.patch('/add/admin/',Auth,ChatController.addAdmin)
 chatRouter.patch('/remove/member/',Auth,ChatController.removeMember)
 chatRouter.patch('/remove/admin/',Auth,ChatController.removeAdmin)
+chatRouter.post('/new/member/',Auth,ChatController.addMember)
+chatRouter.get('/new/fetchNew/',Auth,ChatController.bringNew)
 
 module.exports=chatRouter

@@ -2,19 +2,18 @@ import { useNavigate } from 'react-router-dom'
 import React, { useEffect, useState,useContext } from 'react'
 import { AppContext } from '../../Context/ContextProvider'
 
-const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmSentAt,setSingleChat,isSingleChat}) => {
+const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmSentAt,setSingleChat,unreadMsg,senderId}) => {
   const [timePassed,setTime]=useState('')
 
 
   let {
-    User,setUser,LoadedChats,setLoadedChats,setChats,
-    setClicked,setLoadingChat,clickedChat,unreadMsg
+    User,setUser,LoadedChats,setLoadedChats,
+    setClicked,setChats
   }=useContext(AppContext)
   const navigate=useNavigate()
 
+  const [latestMsgSender,setSender]=useState(lmSender)
   async function clickedOne(){
-    setLoadingChat(true)
-    setSingleChat(true)
 
     let foundLocal=false
 
@@ -29,21 +28,18 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     if(LoadedChats && LoadedChats.length>0){
       for(let i=0;i<LoadedChats.length;i++){
         if(LoadedChats[i]._id==_id){
-          // console.log(LoadedChats[i])
-          setloadAll(false)
-          // setSingleChat(true)
           setClicked(LoadedChats[i])
           foundLocal=true
         }
       }
     }
-
+    setloadAll(false)
+    setSingleChat(true)
     
     if(foundLocal==true){
       let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
       let response=await fetch(AuthUrl)
       if(response.status==200){
-        setLoadingChat(false)
         console.log('hey? 3')
       }else if(response.status(401)){
         localStorage.removeItem('UserData')
@@ -52,9 +48,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
         setChats([])
     
         navigate('/Login')
-        setLoadingChat(false)
-
-      }      console.log(clickedChat)
+      }
 
       return
     }else{
@@ -66,10 +60,8 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     let response=await fetch(url,{
       method:'GET',
     })
-    console.log(clickedChat)
 
     if(response.status==401){
-      setLoadingChat(false)
       setUser('')
       setLoadedChats([])
       setChats([])
@@ -91,7 +83,6 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
       if(isGroupChat===true){
         number=users
       }
-      console.log(data)
 
       let newChat={
         'pic':data.pic,
@@ -101,7 +92,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
         "_id":data._id,
         "messages":data.messages,
         'users':data.users,
-        'GroupAdmins':data.groupAdmins,
+        'groupAdmins':data.groupAdmins,
         'createdBy':data.createdBy
       }
       let Chats=LoadedChats
@@ -110,14 +101,10 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
       setloadAll(false)
       setClicked(newChat)
       setSingleChat(true)
-      setLoadingChat(false)
-      console.log(clickedChat)
-
     }
   }
 
   useEffect(()=>{
-    console.log(lmSender,lmContent)
 
     let createdAt=new Date(lmSentAt)
     createdAt=createdAt.getTime()
@@ -126,7 +113,6 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     const minute=Math.floor(difference/(1000*60))
     const hours=Math.floor(difference/(1000*60*60))
     const days=Math.floor(difference/(1000*60*60*24))
-    console.log(minute,hours,days)
     if(hours<=1){
       setTime(minute+' minutes ago')
     }else if(hours>1 && hours <24){
@@ -137,7 +123,16 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     if(timePassed=== '0 minutes ago'){
       setTime('Now')
     }
+    if(!lmSentAt){setTime('')}
 
+  },[lmSentAt])
+
+  useEffect(()=>{
+    if(User){
+    if(senderId===User._id){
+      setSender('you')
+    }}
+    console.log(lmContent)
   },[])
   
   return (
@@ -153,22 +148,28 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
         </div>
         <div className='latestmsgDiv'>
           <div className='chatElelmInd'>
-            {lmSender && lmContent &&
-            <>
-             <span className='sender LMdetails'>{lmSender}:</span>
-             <span className='latestMessage LMdetails'>{lmContent}</span>
-             </>
-            }{ !lmSender &&!lmContent &&
+            {lmSender &&
+             <span className='sender LMdetails'>{latestMsgSender}:</span>
+            }
+            {lmContent && 
+              <span className='latestMessage LMdetails'>{lmContent}</span>
+            }
+            { !lmSender &&!lmContent &&
               <>
               <span className='LMdetails StartMsg'>Start sending Messages</span>
               </>
             }
             </div>
             <div className='chatElelmInd'>
+            {unreadMsg>0 &&
+              <div className='unreadMsg-chat'>{unreadMsg}</div>
+            }            
             <span className='sentAt LMdetails'>
               {timePassed}
             </span>
-            <div className='unreadMsg-chat'>{unreadMsg}</div>
+            {unreadMsg>0 &&
+              <div className='unreadMsg-chat'>{unreadMsg}</div>
+            }
             </div>
         </div>
       </div>

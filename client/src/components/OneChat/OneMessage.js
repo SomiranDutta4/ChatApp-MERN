@@ -1,10 +1,7 @@
 import React, { useState,useContext, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faGear } from '@fortawesome/free-solid-svg-icons';
-// import { faClock } from '@fortawesome/free-solid-svg-icons';
 import { AppContext } from '../Context/ContextProvider';
 import { faPaperPlane,faEye,faGear,faClock,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
-// import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 const OneMessage = ({
@@ -13,9 +10,9 @@ const OneMessage = ({
 
   }) => {
 
-    const {clickedChat,setClicked,AllChats,LoadedChats,
-      setChats,setLoadedChats,setSending,User,isSending}=useContext(AppContext)
-    const navigate=useNavigate()
+  const {clickedChat,setClicked,AllChats,LoadedChats,
+  setChats,setLoadedChats,setSending,User}=useContext(AppContext)
+  const navigate=useNavigate()
   const [showEdit,setEdit]=useState(false)
   const [editing,setEditingMsg]=useState(false)
   const [successMessage,setMessage]=useState('')
@@ -168,7 +165,8 @@ const OneMessage = ({
       for(let i=0;i<readBy.length;i++){
         if(readBy[i]._id!==User._id){
           let seenBy=seen
-          seenBy.push(readBy[i].name)
+          seenBy.push(
+            [i].name)
           setSeenBy(seenBy)
         }
     }
@@ -190,7 +188,6 @@ const OneMessage = ({
 
   useEffect(()=>{
     checkSeen()
-
   },[])
 
   return (

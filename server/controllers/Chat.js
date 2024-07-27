@@ -1,128 +1,168 @@
 const Chat=require('../Models/Chat')
 const User=require('../Models/User')
+const Message=require('../Models/Message')
 const mongoose=require('mongoose')
 
-module.exports.fetchAllChats=async function(req,res){
-    Chat.find({$or:[
-        {'users':req.query._id},
-        {'users._id':req.query._id}
-    ]}).select('-messages')
-    .populate('users','-password')
-    .populate('latestMessage.sender','name pic contactNumber')
-    .then(chats=>{
-        if(chats.length==0){
-            return res.status(200).json({"chats":[],message:'not chatted yet'})
+module.exports.fetchAllChats = async function(req, res) {
+    try {
+        let chats = await Chat.find({
+            $or: [
+                { 'users': req.query._id },
+                { 'users._id': req.query._id }
+            ]
+        })
+        .populate('groupAdmins','-password')
+        .populate('createdBy','-password')
+        .populate('users', '-password')
+        .populate({
+            path: 'latestMessage',
+            populate: {
+                path: 'sender',
+                select: 'name pic contactNumber'
+            }
+        });
+
+        for (let chat of chats) {
+            let unseenMsg = await Message.countDocuments({
+                chat: chat._id,
+                readBy: { $nin: [req.user._id] }
+            });
+            chat.unseenMsg = unseenMsg;
         }
-        return res.status(200).json({"chats":chats,message:'fetched successfully'})
-    })
-    .catch(err=>{
-        console.log(err)
-        return res.status(500).json({message:'error in server Side'})
-    })
-}
+
+        if (chats.length === 0) {
+            return res.status(200).json({ chats: [], message: 'not chatted yet' });
+        }
+
+        return res.status(200).json({ chats: chats, message: 'fetched successfully' });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: 'error in server side' });
+    }
+};
 
 
-module.exports.ClickedChat=function(req,res){
-    // req.query._id,
-    Chat.findOne({_id:req.query._id})
+
+module.exports.ClickedChat=async function(req,res){
+   try {
+    let chat=await Chat.findOne({_id:req.query._id})
     .populate('users','-password')
-    .populate('messages.sender','name pic contactNumber')
-    .populate('messages.readBy','-password')
+    // .populate('messages.sender','name pic contactNumber')
+    // .populate('messages.readBy','-password')
     .populate('createdBy','-password')
     .populate('groupAdmins','-password')
-    .then(chat=>{
-        if(!chat){
-            return res.status(400).json({message:'send the first message'})
-        }
-        chat.chatName=req.query.chatName
-        return res.status(200).json(chat)
-    }).catch(err=>{
-        return res.status(500).json({message:'could not find Chat'})
-    })
+
+    
+    if(!chat){
+        return res.status(400).json({message:'send the first message'})
+    }
+    chat.chatName=req.query.chatName
+
+    try {
+        const messages=await Message.find({chat:chat._id})
+        .populate('sender','-password')
+        .populate('readBy','-password')
+        chat.messages=messages
+    } catch (error) {
+        chat.messages=[]
+        console.log(error)
+    }
+    return res.status(200).json(chat)
+
+   } catch (error) {
+    return res.status(500).json({message:'could not find Chat'})
+   }
+     
 }
 
-module.exports.createNew=function(req,res){
-    console.log(req.body)
+module.exports.createNew=async function(req,res){
     // console.log()
-    if(req.body._id==req.user._id){
-        Chat.findOne({
-            users:{
-                $size:1,
-                $elemMatch:{$eq:req.body._id}
-            }
-        })
-        .populate('users','-password')
-        .populate('messages.sender','-password')
-        .populate('latestMessage.sender','-password')
-        .then(chat=>{
+    try {
+        if(req.body._id==req.user._id){
+            let chat=await Chat.findOne({
+                users:{
+                    $size:1,
+                    $elemMatch:{$eq:req.body._id}
+                }
+            })
+            .populate('users','-password')
+            .populate({
+                path:'latestMessage',
+                populate:{
+                    path:'sender',
+                    select:'name pic contactNumber'
+                }
+            })
+    
             if(chat){
+                let messages=await Message.find({chat:chat._id})
+    
                 console.log('1')
                 return res.status(200).json({
-                messages:chat.messages,
+                users:req.body.users,
+                messages:messages,
                 chatName:req.body.chatName,
                 pic:req.body.pic,
                 isGroupChat:false,
-                number:req.body.number,
+                contactNumber:req.body.contactNumber,
                 _id:chat._id
                 })   
             }else{
                 console.log('2')
-
+    
                 return res.status(200).json({
+                    users:req.body.users,
                     messages:[],
                     chatName:req.body.chatName,
                     isGroupChat:false,
-                    contactNumber:req.body.number,
+                    contactNumber:req.body.contactNumber,
                     pic:req.body.pic,
                     reqId:req.body._id,
                     _id:new mongoose.Types.ObjectId()
                 })
             }
-        })
-    }else{
-        Chat.findOne({'users':{
-            $all:[req.body._id,req.user._id]
-        }}).then(chat=>{
+    
+    
+        }else{
+            let chat=await Chat.findOne({'users':{
+                $all:[req.body._id,req.user._id]
+            }})
+    
             if(chat){
+    
+                let messages=await Message.find({chat:chat._id})
                 console.log('3')
                 return res.status(200).json({
-                    messages:chat.messages,
+                    users:req.body.users,
+                    messages:messages,
                     chatName:req.body.chatName,
                     isGroupChat:false,
                     users:chat.users,
-                    number:req.body.number,
+                    contactNumber:req.body.contactNumber,
                     _id:chat._id
                 })
             }
             console.log('4')
-
+    
             return res.status(200).json({
+                users:req.body.users,
                 messages:[],
                 chatName:req.body.chatName,
                 isGroupChat:false,
-                contactNumber:req.body.number,
+                contactNumber:req.body.contactNumber,
                 pic:req.body.pic,
                 reqId:req.body._id,
                 _id:new mongoose.Types.ObjectId()
             })
-        })
+    
+        }
+    } catch (error) {
+        return res.status(500).json({message:error.message})
     }
+
 }
 
-module.exports.searchUser=function(req,res){
-    User.findOne({contactNumber:req.query.number}).then(user=>{
-        if(user){
-            return res.status(200).json({
-                number:user.contactNumber,
-                name:user.name,
-            })
-        }else{
-            return res.status(400).json({message:'nothing found'})
-        }
-    }).catch(err=>{
-        return res.status(500).json({message:'error:500'})   
-    })
-}
 
 module.exports.createGroup=async function(req,res){
     console.log(req.body)
@@ -133,16 +173,23 @@ module.exports.createGroup=async function(req,res){
     }
     let Admin=[req.user._id]
     try {
+        let newId=new mongoose.Types.ObjectId
+        await Message.create({
+            content:'The group was created',
+            _id:newId,
+        })
+
         let newGroup=await Chat.create({
             _id:newChatid,
             chatName:req.body.groupName,
             isGroupChat:true,
             pic:'https://cdn.pixabay.com/photo/2020/05/29/13/26/icons-5235125_1280.png',
             users:users,
-            messages:[],
-            latestMessage:{},
+            latestMessage:newId,
+            unseenMsg:0,
             createdBy:req.user._id,
-            groupAdmins:Admin
+            groupAdmins:Admin,
+            createdAt:new Date()
         })
         console.log('group cre:',newGroup)
     } catch (error) {
@@ -151,6 +198,7 @@ module.exports.createGroup=async function(req,res){
     try {
         let Groupchat=await Chat.findById(newChatid)
         .populate('users','-password')
+        .populate('latestMessage')
         .populate('groupAdmins','-password')
         .populate('createdBy','-password')
         return res.status(201).json({message:'Group was created',Groupchat:Groupchat})
@@ -175,9 +223,9 @@ module.exports.addAdmin=async function(req,res){
     //req.body.newAdmin: _id of user
     //req.bdy.chatId
     try {
-        let chat=await Chat.findOne({_id:req.body.chatId,users:req.body.newAdmin,groupAdmins:req.user._id})
+        let chat=await Chat.findOne({_id:req.body.chatId,users:req.body.Admin,groupAdmins:req.user._id})
         if(chat){
-            chat.groupAdmins.push(req.body.newAdmin) 
+            chat.groupAdmins.push(req.body.Admin) 
             chat.save()
         }
         return res.status(200).json({message:'added new admin'})
@@ -188,8 +236,12 @@ module.exports.addAdmin=async function(req,res){
 module.exports.removeAdmin=function(req,res){
     //req.Admin
     //req.bdy.chatId
-    Chat.findoneAndUpdate(
-        {_id:req.body.chatId,users:req.body.Admin,groupAdmins:req.user._id},
+    Chat.updateOne({
+        _id:req.body.chatId,
+        users:req.body.Admin,
+        groupAdmins:req.user._id,
+        createdBy:{$ne:req.body.Admin}
+        },
         {$pull:{groupAdmins:req.body.Admin}},
         {new:true}
     ).then(chat=>{
@@ -200,38 +252,36 @@ module.exports.removeAdmin=function(req,res){
     })
 }
 module.exports.addMember=function(req,res){
-    //multiple mambers
-    //req.body.newMember
-    //added by
-    //req.body._id
-    let users=[]
-    for(let i=0;i<req.body.mewMembers.length;i++){
-        users.push()
-    }
+    // let users=[]
+    // for(let i=0;i<req.body.mewMembers.length;i++){
+    //     users.push()
+    // }
     Chat.findOne({
         _id:req.body._id,
         groupAdmins:req.user._id
     })
     .then(chat=>{
-        for(let i=0;i<req.body.mewMembers.length;i++){
-            chat.users.push(req.body.newMembers[i])
+        if(chat.users.includes(req.body.newMember) || !chat){
+            return res.status(400).json({message:'user is already in the chat or chat does not exist'})
         }
-        // chat.users.push(req.body.newMember)
+        chat.users.push(req.body.newMember)
         chat.save()
-    }).populate('users')
+        return res.status(200).json({message:'suuccessfully added new member'})
+    }).catch(err=>{
+        return res.status(500).json({message:'some error occured'})
+    })
 }
 
 module.exports.removeMember=function(req,res){
     //req.body.chatId
     //req.body.memberId
-    Chat.findoneAndUpdate({
+    Chat.updateOne({
         _id:req.body.chatId,
         groupAdmins:req.user._id,
         createdBy:{$ne:req.body.memberId}
     },
     {
-        $pull:{users:req.body.memberId},
-        $push:{pastUsers:{member:req.body.memberId,lastMessage:req.body.lastMessage}}
+        $pull:{users:req.body.memberId}
     },
     {new:true}
 ).then(chat=>{
@@ -240,7 +290,23 @@ module.exports.removeMember=function(req,res){
 }).catch(err=>{return res.status(500).json({message:'internal error'})})
 }
 
-// pastUsers:[{
-//     member:{type:String},
-//     lastMessage:{type:String},
-//   }],
+module.exports.bringNew=function(req,res){
+    Chat.findById(req.query._id)
+    .populate('groupAdmins','-password')
+    .populate('createdBy','-password')
+    .populate('users', '-password')
+    .populate({
+        path: 'latestMessage',
+        populate: {
+            path: 'sender',
+            select: 'name pic contactNumber'
+        }
+    })
+    .then(chat=>{
+        if(chat){
+            return res.status(200).json({chat:chat})
+        }return res.status(400).json({message:'Could not find'})
+    }).catch(err=>{
+        return res.status(500).json({message:err.message})
+    })
+}

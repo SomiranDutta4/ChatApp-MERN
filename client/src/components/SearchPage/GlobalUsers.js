@@ -1,4 +1,4 @@
-import React,{useContext} from 'react'
+import React,{useContext, useEffect} from 'react'
 import './UserSearch.css'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../Context/ContextProvider'
@@ -15,7 +15,7 @@ const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
   }
 
   let url=`http://localhost:2000/chat/get/new/?token=${UserData.token}`
-  let sendNew=async()=>{
+  let sendNew=async(user)=>{
     try {
       let result=await fetch(url,{
         method:'POST',
@@ -23,16 +23,14 @@ const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
           'Content-Type': 'application/json', // Specify content type JSON
         },
         body:JSON.stringify({
-          chatName:foundUser.data.name,
-          number:foundUser.data.contact,
-          pic:foundUser.data.pic,
-          _id:foundUser.data._id
+          users:user.users,
+          chatName:user.name,
+          contactNumber:user.contactNumber,
+          pic:user.pic,
+          _id:user._id
         })
       })
-      console.log(foundUser)
     let data=await result.json()
-    console.log(data)
-    console.log(UserData)
     setClicked(data)
     setSingleChat(true)
     setloadAll(false)
@@ -43,20 +41,24 @@ const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
     
   }
 
-  if(foundUser.data && foundUser.data.contact){
+  if(foundUser.data){
     return (
       <div className="users-div-search">        
           <div className="user-list">
-            
-              <div onClick={sendNew} className="user-card Global">
-              <div className='user-avatar-div'>
-                  <img src={foundUser.data.pic} className="user-avatar" />
+            {foundUser.data.map(user=>{
+              return(
+                <div onClick={()=>sendNew(user)} className="user-card Global">
+                <div className='user-avatar-div'>
+                    <img src={user.pic} className="user-avatar" />
+                    </div>
+                    <div className="user-info">
+                    <h3>{user.name}</h3>
+                    <p>{user.contactNumber}</p>
                   </div>
-                  <div className="user-info">
-                  <h3>{foundUser.data.name}</h3>
-                  <p>{foundUser.data.contact}</p>
                 </div>
-              </div>
+              )
+            })
+            }
           </div>
       </div>
     )

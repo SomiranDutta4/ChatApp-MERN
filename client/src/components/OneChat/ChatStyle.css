@@ -25,6 +25,8 @@
     font-size: 85%;
   }
  .LMdetails.sentAt{
+  display: flex;
+  align-items: center;
   font-size: 70%;
  }
  .StartMsg{
@@ -392,7 +394,7 @@ z-index: 100;
 .hasBeenSeen:hover{
   scale:(110%,110%);
 }
-.Details-span-ChatDetails{font-size: 150%;margin: 0 5px 0 5px;color: rgb(74, 61, 61);}
+.Details-span-ChatDetails{margin: 0 5px 0 5px;color: rgb(74, 61, 61);}
 @media(min-width:850px){
   .seenBy-div{
     right: 25vw;
@@ -404,6 +406,7 @@ z-index: 100;
   color: black;
 }
 .Chat-User {
+  max-height: 6.4vh;
   width: 100%;
   display: flex;
   align-items: center; /* Align items vertically */
@@ -441,14 +444,54 @@ z-index: 100;
 .displayDetails-profile{
   align-items: center;
   display: flex;
-  justify-content: space-between;
   flex-wrap: wrap; 
   max-height: 75%;
   overflow-y: scroll;
 }
+.displayDetails-profile.GroupChat{
+  justify-content: space-between;
+}
 .AddMember-ChatGrp{cursor: pointer; margin: 5px 0 5px 0;border-radius: 5px;border: 0.1px solid rgba(0, 0, 0, 0.482); padding: 1.5px 3px 1.5px 3px;}
 .isAdmin-Chat{color: rgb(88, 87, 87);margin: 0 6px 0 6px;}
 .MemberEditBtn-chat{margin: 0 6px 0 6px;border: none;}
-.BasicDetails-ChatPage{width: 60%;}
-.AdminsEditor{position: absolute;top: 5vh;width: 50%;max-width: 500px;left: 50%;transform: translateX(-50%)}
-.AdminsOptions{padding: 4px 6px;border-radius: 3px;border: 0.1px solid rgba(0, 0, 0, 0.526);}
+.BasicDetails-ChatPage{width: min-content;}
+.AdminsEditor{
+  padding: 15px;
+  width: 40%;
+  max-width: 300px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);background-color: rgba(240, 248, 255, 0.389);border-radius: 5px;
+  position: absolute;top: 5vh;left: 50%;transform: translateX(-50%)}
+.AdminsOptions{cursor: pointer; padding: 4px 6px;border-radius: 3px;border: 0.1px solid rgba(0, 0, 0, 0.526);}
+.eachMember-pic{height: 95%;border-radius: 50%;aspect-ratio: 1;}
+.Details-span-DP.groupmembers.GroupChat{
+  max-height: 5.8vh;aspect-ratio: 1;display: flex;align-items: center;margin:1px 4px 1px 4px ;}
+
+@media(min-width:850px){
+  .AdminsEditor{
+    left:75% ;
+    transform: translateX(-70%);
+  }
+}
+@media(max-width:600px){
+  .edit-button.labelEdit-img.isGroup-true{
+    top:0;
+    right: 2vw;
+  }
+  .ProfilePhotoDiv.isGroup-true{
+    height:30%;
+    justify-content: center;
+    width: 100%;
+  }
+  .BasicDetails-ChatPage.isGroup-true{
+    height: 67%;
+    width: 100%;
+    justify-content: center;
+  }
+  .PfP.isGroup-true{
+    height: 70%;
+  }
+  .changeDiv-profilePhoto{
+    flex-direction: column;
+  }
+}
+.freezedDisplay{position: absolute;width: 100%;height: 100%;background-color: rgba(255, 255, 255, 0.158);}

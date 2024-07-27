@@ -6,14 +6,6 @@ import { faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { AppContext } from '../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 
-
-const dummyUsers = [
-  { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' },
-  { id: 3, name: 'Michael Johnson' },
-  { id: 4, name: 'Emily Brown' },
-];
-
 const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
   let navigate=useNavigate()
   let {AllChats,User,setChats}=useContext(AppContext)
@@ -27,20 +19,17 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
     let foundUsers=[]
       if(AllChats){
         AllChats.forEach(chat => {
-          setCreated(true)
-    
-          if(chat.users.length===2){
+          if(chat.users.length===2 && chat.isGroupChat==false){
             if(chat.users[1]._id===User._id){
               foundUsers.push(chat.users[0])
             }else{
               foundUsers.push(chat.users[1])
             }
           }
-          setCreated(false)
+      
         });
       }
       setLocalUsers(foundUsers)
-      foundUsers=[]
     }
 
    
@@ -53,7 +42,7 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
       setSelectedMembers([...selectedMembers, userId]);
     }
     console.log(selectedMembers)
-  };
+  }
 
   const handleGroupNameChange = (event) => {
     
@@ -99,6 +88,7 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
         setloadAll(true)
         setSingleChat(false)
         setCreated(false)
+        console.log(data.Groupchat)
         return
       }else if(response.status===500){
         errorFunc('some Error occured')
@@ -123,8 +113,7 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
   }
   
   useEffect(()=>{
-    console.log(selectedMembers)
-    LoadAll()
+    LoadAll();
   },[])
 
   return (
@@ -161,7 +150,8 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
               onClick={() => handleMemberSelect(user._id)}
             >
                 
-              {user.name}
+              {user.name}:⠀
+              {user.contactNumber}
               {selectedMembers.includes(user._id) && <button className='deselect-member-group'>✕</button>}
             </div>
           ))}

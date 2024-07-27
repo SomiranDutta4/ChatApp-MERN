@@ -1,4 +1,5 @@
 const { default: mongoose } = require('mongoose')
+const Message=require('../Models/Message')
 const Chat=require('../Models/Chat')
 const User=require('../Models/User')
 
@@ -7,59 +8,48 @@ module.exports.sendMessage=async function(req,res){
     let isCreatedNew=false
     let newMessageId=new mongoose.Types.ObjectId()
     let users=[req.body._id]
-    if(req.body.chat.reqId!=req.user._id){
-        users.push(req.body.chat.reqId)
+    if(req.body.reqId!=req.user._id){
+        users.push(req.body.reqId)
     }
 
     try {
-        let chat= await Chat.findOne({_id:req.body.chat._id})
+        let chat= await Chat.findOne({_id:req.body.chatId,users:req.user._id})
         .populate('users','-password')
         .populate('messages.sender','-password')
         if(chat){
-            console.log('2')
-
-            chat.messages.push({
-                _id:newMessageId,
-                sender:req.body._id,
-                content:req.body.content,
-                isDeleted:false,
-                readBy:[req.user._id]
-
-            })
-            chat.latestMessage={
-                _id:newMessageId,
-                sender:req.body._id,
-                content:req.body.content,
-                isDeleted:false,
-                readBy:[req.user._id]
-            }
-
+            chat.latestMessage=newMessageId
             await chat.save()
-            // return res.status(200).json({message:'sent message',chat})
+
+            await Message.create({
+                _id:newMessageId,
+                sender:req.body._id,
+                content:req.body.content,
+                chat:req.body.chatId,
+                isDeleted:false,
+                readBy:[req.user._id]           
+            })
+
             }else{
-                console.log('1')
-            let newChat=await Chat.create({
-                _id:req.body.chat._id,
+            await Chat.create({
+                _id:req.body.chatId,
                 chatName:'randomXYZchatApp.123456789@#$%^&*()_+',
                 isGroupChat:false,
                 users:users,
                 pastUsers:[],
-                messages:[{
-                    _id:newMessageId,
-                    sender:req.body._id,
-                    content:req.body.content,
-                    isDeleted:false,
-                    readBy:[req.user._id]
-                }],
-                latestMessage:{
-                    _id:newMessageId,
-                    content:req.body.content,
-                    isDeleted:false,
-                    sender:req.body._id,
-                    readBy:[req.user._id]
-                },
+                messages:[],
+                latestMessage:newMessageId
                 
             })
+
+            await Message.create({
+                _id:newMessageId,
+                sender:req.body._id,
+                content:req.body.content,
+                isDeleted:false,
+                chat:req.body.chatId,
+                readBy:[req.user._id]         
+            })
+            
             isCreatedNew=true
             }
         }catch (error) {
@@ -68,18 +58,28 @@ module.exports.sendMessage=async function(req,res){
            return res.status(500).json({message:err})
         }
         try {
-            let chatToReturn=await Chat.findById(req.body.chat._id)
-        .populate('latestMessage.sender','-password')
-        .populate('messages.sender','-password')
-        .populate('users','-password')
-        .populate('latestMessage.readBy','-password')
-        .populate('groupAdmins','-password')
-        .populate('createdBy','-password')
-
+            let chatToReturn=await Chat.findById(req.body.chatId)
+        .populate('users')
+        // .select('latestMessage')
+        .populate({
+            path:'latestMessage',
+            populate:{
+                path:'sender',
+                select:'-password'
+            }
+        })
+        .populate({
+            path:'latestMessage',
+            populate:{
+                path:'readBy',
+                select:'-password'
+            }
+        })
+       
             if(isCreatedNew==false){
-                return res.status(200).json({message:'sent message',chat:chatToReturn.latestMessage})
+                return res.status(200).json({message:'sent message',chat:chatToReturn})
             }else{
-                return res.status(300).json({message:'created a new chat and sent message',chat:chatToReturn.latestMessage})
+                return res.status(300).json({message:'created a new chat and sent message',chat:chatToReturn})
             }
         } catch (error) {
             
@@ -88,70 +88,70 @@ module.exports.sendMessage=async function(req,res){
 
 
 module.exports.seeMessage=function(req,res){
-    Chat.findOne({'_id':req.body.chatId}).then(chat=>{
-        if(chat){
-            for(let i=chat.messages.length-1;i>=0;i--){
-            if((chat.messages[i].readBy).includes(req.user._id)){
-                break;
-            }else{
-                chat.messages[i].readBy.push(req.user._id)
-            }
-            }
-            chat.save()
-            .then(()=>{
-                return res.status(200).json({message:'read all messages'})
-            })
-            .catch(err=>{
-                console.log(err)
-                return res.status(500).json({message:'err'})
-            })
-        }else{
-            console.log('1')
 
-            return res.status(400).json({messages:'some error>>'})
-        }
-    }).catch(err=>{
-        return res.status(500).json({message:'Server side error-500'})
-    })
+    Message.updateMany({
+        $and:[
+            {chat:req.body.chatId},
+            {readBy:{$ne:req.user._id}}
+        ]
+    },
+    {$addToSet:{readBy:req.user._id}}
+).then(result=>{
+    return res.status(200).json({message:'seen all the messages',number:result.nModified})
+}).catch(err=>{
+    console.log(err)
+    return res.status(500).json({message:'error happened'})
+})
 }
 
 module.exports.deleteMessage=async function(req,res){
     try {
-        const updatedChat=await Chat.findByIdAndUpdate(
-            req.body.chatId,
-            {$set:{'messages.$[elem].content':'message was deleted','messages.$[elem].isDeleted':true}},
-            {new:true,arrayFilters:[{'elem._id':req.body.messageId}]}
-        )
-        if(!updatedChat){
-            return res.status(400).json({ message: 'No message found' });
-        }
-        if(updatedChat.latestMessage._id==req.body.messageId){
-            updatedChat.latestMessage.content='message was deleted'
-            updatedChat.latestMessage.isDeleted=true
-        }
-        updatedChat.save()
-
-        return res.status(200).json({ message: 'Message deleted' });
-    } catch (error) {
-        return res.status(500).json({ message: 'Error deleting message', error: error.message });
+        const message=await Message.findOne({_id:req.body.messageId,chat:req.body.chatId})
+    if(!message){
+        return res.status(400).json({message:'something went wrong'})
     }
+    message.content='message was deleted'
+    message.save()
+
+    const chat= await Chat.findOne({_id:req.body.chatId})
+    if(!chat){
+        return res.status(400).json({message:'something went wrong'})
+    }
+    // if(chat.latestMessage==req.body.messageId){
+    //     chat.latestMessage.content='message was deleted'
+    // }
+    chat.save()
+    return res.status(200).json({ message: 'Message deleted' });
+    
+   } catch (error) {
+       return res.status(500).json({ message: 'Error deleting message', error: error.message });
+   }
+    
 }
 
 module.exports.editMessage=async function(req,res){
 
     try {
-
-        const updatedChat=await Chat.findByIdAndUpdate(
-            req.body.chatId,
-            {$set:{'messages.$[elem].content':req.body.newContent}},
-            {new:true,arrayFilters:[{'elem._id':req.body.messageId}]}
-        )
-        if(!updatedChat){
-            return res.status(400).json({ message: 'No message found' });
-        }
-        return res.status(200).json({ message: 'Message edited' });
-    } catch (error) {
-        return res.status(500).json({ message: 'Error editing message', error: error.message });
+        const message=await Message.findOne({_id:req.body.messageId,chat:req.body.chatId})
+    if(!message){
+        return res.status(400).json({message:'something went wrong'})
     }
+    message.content=req.body.newContent
+    message.save()
+
+    const chat= await Chat.findOne({_id:req.body.chatId})
+    if(!chat){
+        return res.status(400).json({message:'something went wrong'})
+    }
+    // if(chat.latestMessage._id==req.body.messageId){
+    //     chat.latestMessage.content=req.body.newContent
+    // }
+    chat.save()
+    return res.status(200).json({ message: 'Message edited' });
+    
+   } catch (error) {
+       return res.status(500).json({ message: 'Error deleting message', error: error.message });
+   }
+
 }
 

@@ -1,14 +1,14 @@
 const mongoose = require("mongoose");
 
-const messageSchema = new mongoose.Schema(
-  {
-    sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    content: { type: String, trim: true },
-    readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    isDeleted:{type:Boolean}
-  },
-  { timestamps: true }
-);
+// const messageSchema = new mongoose.Schema(
+//   {
+//     sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+//     content: { type: String, trim: true },
+//     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+//     isDeleted:{type:Boolean}
+//   },
+//   { timestamps: true }
+// );
 
 const chatModel = new mongoose.Schema(
   {
@@ -21,12 +21,9 @@ const chatModel = new mongoose.Schema(
     chatName: { type: String, trim: true },
     isGroupChat: { type: Boolean,required: true, default: false },
     users: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    pastUsers:[{
-      member:{type:String},
-      lastMessage:{type:String},
-    }],
-    messages:[messageSchema],
-    latestMessage:messageSchema,
+    unseenMsg:{type:Number,default:0,required:true},
+    messages:{type:Object,default:[],required:true},
+    latestMessage:{ type: mongoose.Schema.Types.ObjectId, ref: "Message" },
     createdBy:[{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     groupAdmins: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },

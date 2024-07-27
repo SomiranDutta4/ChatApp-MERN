@@ -102,4 +102,8 @@
     left: 50%;
     transform: translateX(-50%);
   }
-  
+  @media(min-width:850px){
+    .spinnerDiv-group{
+      left: 75%;
+    }
+  }

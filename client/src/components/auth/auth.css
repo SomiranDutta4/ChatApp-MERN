@@ -15,9 +15,8 @@ html,body{
 background: linear-gradient(to right, #1a1a1a, #211f1f);
 
 }
-.AuthError-Container{
+.AuthError-Container,.AuthError-Container-new {
   position: absolute;
-  top: 2vh;
   left: 50%;
   transform: translateX(-50%);
   color: white;
@@ -25,10 +24,22 @@ background: linear-gradient(to right, #1a1a1a, #211f1f);
   text-align: center;
   padding: 6px;
 }
-.AuthError-Container.error{
+.AuthError-Container-new{
+  top: -10vh;
+}
+.Cancel-Addmember{
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 3px;
+  border: 0.1px solid rgba(0, 0, 0, 0.449);
+}
+.AuthError-Container{
+  top: 2vh;
+}
+.AuthError-Container.error,.AuthError-Container-new.error{
   background-color: rgb(254, 49, 49);
 }
-.AuthError-Container.success{
+.AuthError-Container.success,.AuthError-Container-new.success{
   background-color: rgb(170, 224, 89);
 }
 .togglePass{

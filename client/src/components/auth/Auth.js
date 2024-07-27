@@ -76,7 +76,7 @@ const Login = ({}) => {
 
     async function login(){
       //200,401,500,400-no user
-      let Loginurl=`http://localhost:2000/user/Login/?number=${number}&password=${Password}`
+      let Loginurl=`http://localhost:2000/user/Login/?email=${number}&password=${Password}`
       try {
         let response=await fetch(Loginurl,{
           method:'GET'
@@ -99,6 +99,8 @@ const Login = ({}) => {
         }else if(response.status===400){
           setErrorfunc('No Account exist, Sign up first','error')
         }else{
+          let data=await response.json()
+          console.log(data)
           setErrorfunc('There was an error,We are fixing it','error')
         }
        
@@ -121,7 +123,7 @@ const Login = ({}) => {
             'Content-Type': 'application/json', // Specify content type JSON
           },
           body:JSON.stringify({
-            number:number,
+            email:number,
             password:Password,
             name:name,
             // email:email
@@ -189,7 +191,7 @@ const Login = ({}) => {
               <input onChange={typeEmail} value={email} className='emailInput' type="number" placeholder="Email" required/>
             </div> */}
             <div className="field">
-              <input onChange={typeNumber} value={number} className='emailInput' type="number" placeholder="Phone Number" required/>
+              <input onChange={typeNumber} value={number} className='emailInput' type='email' placeholder="Email" required/>
             </div>
             <div className="field flexField">
               <input onChange={typePassword} value={Password} className='passwordInput' type={pass==='show'?'text':'password'} placeholder="Password" required/>
@@ -205,7 +207,7 @@ const Login = ({}) => {
           </div>
           <div className="signup custom-form" >
             <div className="field">
-              <input onChange={typeNumber} value={number} className='emailInput' type="number" placeholder="Phone Number" required/>
+              <input onChange={typeNumber} value={number} className='emailInput' type="email" placeholder="Email" required/>
             </div>
             {/* <div className="field">
               <input onChange={typeEmail} value={email} className='emailInput' type="number" placeholder="Email" required/>

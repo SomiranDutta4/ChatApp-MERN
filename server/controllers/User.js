@@ -13,11 +13,15 @@ module.exports.signUp=function(req,res){
     if(req.body.isAdmin && req.body.isAdmin==true){
         isAdmin=true
     }
+    try {
+        
+    } catch (error) {
+        
+    }
     bcrypt.hash(req.body.password,12).then(hashedPassword=>{
         User.create({
             name:req.body.name,
-            contactNumber:req.body.number,
-            email:req.body.email,
+            contactNumber:req.body.email,
             password:hashedPassword,
             isAdmin:isAdmin
         }).then(done=>{
@@ -26,14 +30,17 @@ module.exports.signUp=function(req,res){
             console.log(err)
             return res.status(500).json({message:'Some Server side error, we regret for any indiscrepency'})
         })
+    }).catch(err=>{
+        return res.status(500).json({message:err.message})
     })
 }
 
 module.exports.signIn=function(req,res){
     let password=req.query.password
     User.findOne({
-        contactNumber:req.query.number
-    }).then(foundUser=>{
+        contactNumber:req.query.email
+    })
+    .then(foundUser=>{
         if(!foundUser){
             return res.status(400).json({message:'No registered user found with this email: Please Signup first'})
         }
@@ -54,23 +61,48 @@ module.exports.signIn=function(req,res){
                 token:token,
                 user
             })
-        })
+        }).catch(err=>{
+            console.log(err)
+            return res.status(500).json({message:err.message})
+    })
     }).catch(err=>{
         return res.status(500).json({message:'error!'})
     })
 }
 
 module.exports.searchUser=function(req,res){
-    User.findOne({contactNumber:req.query.number}).then(user=>{
-        if(!user){return res.status(401).json({message:'no such user found'})}
-        return res.status(201).json({ 
-            name:user.name,
-            contact:user.contactNumber,
-            _id:user._id,
-            pic:user.pic})
+    console.log(req.query)
+
+    User.find({name:req.query.user}).then(user=>{
+        if(!user|| user.length==0){return res.status(400).json({message:'no such user found'})}
+
+        let sentUsers=[]
+        user.forEach(ele=>{
+            let userArray=[req.user]
+            if(String(req.user._id)!=String(ele._id)){
+                userArray.push(ele)
+            }
+            sentUsers.push({
+                name:ele.name,
+                _id:ele._id,
+                pic:ele.pic,
+                isGroupChat:false,
+                groupAdmins:[],
+                createdBy:'',
+                contactNumber:ele.contactNumber,
+                users:userArray
+            })            
+        })
+        return res.status(201).json({message:'found these',users:sentUsers})
     }).catch(err=>{
         console.log(err)
         return res.status(500).json({message:'error in searching, we regret our inconveninience',err})
+    })
+}
+module.exports.searchForGroup=function(req,res){
+    User.find().then(users=>{
+        let foundUsers=users.filter(user=>user.name.toLowerCase().startsWith(req.query.input.toLowerCase()))
+        return res.status(200).json({message:'found users',users:foundUsers})
     })
 }
 
@@ -135,20 +167,3 @@ module.exports.editAcc=function(req,res){
 module.exports.authenticate=function(req,res){
     return res.status(200).json({message:'authenticated'})
 }
-// name: { type: "String", required: true },
-// email: { type: "String", unique: true, required: true },
-// password: { type: "String", required: true },
-// pic: {
-//   type: "String",
-//   required: true,
-//   default:
-//     "https://icon-library.com/images/anonymous-avatar-icon/anonymous-avatar-icon-25.jpg",
-// },
-// isAdmin: {
-//   type: Boolean,
-//   required: true,
-//   default: false,
-// },
-// },
-// { timestaps: true }
-// );

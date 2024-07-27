@@ -9,3 +9,73 @@
     width: 100%;
     height: 100%;
 }
+/* HomePage.css */
+
+.homepage {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  .navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f0f0f0; /* Light gray background for navbar */
+    padding: 10px;
+    border-bottom: 1px solid #ccc; /* Border line at the bottom */
+  }
+  
+  .navbar h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333; /* Dark text color */
+  }
+  
+  .navbar button {
+    padding: 8px 16px;
+    background-color: #007bff; /* Blue background for button */
+    color: #fff; /* White text color */
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .navbar button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  .content {
+    padding: 20px;
+    background-color: #fff; /* White background for content */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Shadow for a slight elevation effect */
+  }
+  
+  .content p {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #444; /* Slightly darker text color */
+  }
+  
+  .footer {
+    margin-top: 20px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc; /* Border line at the top */
+    text-align: center;
+    font-size: 0.9rem;
+    color: #666; /* Gray text color */
+  }
+  
+  .reach-me {
+    margin-top: 10px;
+  }
+  
+  .social-icon {
+    width: 30px;
+    height: 30px;
+    margin: 0 5px;
+  }
+  

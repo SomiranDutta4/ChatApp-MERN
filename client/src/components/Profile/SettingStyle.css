@@ -4,13 +4,10 @@
     align-items: center;
     height: 100vh;
     width: 100%;
-    /* background-color: #f0f0f0; */
     background-color: #ffffffc4;
-
   }
   
   .ProfilePage {
-    height: 40vh;
     width: 85%;
     display: flex;
     max-width: 600px;
@@ -21,15 +18,31 @@
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  
+  .ProfilePage.ChatPf{
+    height: 40vh;
+  }
+  .ProfilePage.ChatPf.isAdding-true{
+    filter: blur(2px);
+  }
+  .ProfilePage.Account{
+    flex-wrap: wrap;
+  }
   .ChangeDiv-Profile {
     margin-bottom: 15px;
+  }
+  .ChangeDiv-Profile.Account{
+    width: 90%;
   }
   .labelEdit-img{margin-bottom: 1.5vh;position: relative;right: 3vh;}
   .backDiv-Account{
     position: absolute;
     top: 1vh;
     right: 1vw;
+  }
+  .LogOut-Account{
+    position: absolute;
+    top: 1vh;
+    left: 1vw;
   }
   .back-btn-Acc{
     background: transparent;
@@ -47,11 +60,16 @@
     width: max-content;
   }
   .changeDiv-profilePhoto{
-    height: 100%;
-    width: 100%;
     margin: 5px 10px 25px 10px;
     display: flex;
+    width: 100%;
     justify-content: space-evenly;
+  }
+  .changeDiv-profilePhoto.ChatPf{
+    height: 100%;
+  }
+  .changeDiv-profilePhoto.Account{
+    max-height: 40vh;
   }
   .Details-span{
     text-decoration: underline;
@@ -155,3 +173,96 @@ border-radius: 5px;}
 
 .PfP{height: 40%;}  }
 .labelEdit-img{top: -3vh;}
+
+@media(max-width:500px){
+
+
+  .PfP{height: 30%;}  }
+  .labelEdit-img{top: -10vh;}
+
+  .add-participants-popup {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+    max-width: 550px;
+    width: 50%;
+    min-width: 400px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+  }
+  .searchBtn-Add{padding: 4px;
+  border-radius: 4px;
+border: 0.1px solid grey;}
+  .options {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .inputDisplay-Addmembers-group{
+    width: 80%;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.154);
+    padding: 4px 0 4px 0;
+  }
+  .option {
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    border: 0.1px solid grey;
+  }
+  
+  .option.active {
+    background-color: #3498db;
+    color: #fff;
+  }
+  
+  .users-container {
+    max-height: 150px;
+    overflow-y: auto;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  .users-list {
+    margin-top: 10px;
+  }
+  
+  .user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .user-item:last-child {
+    border-bottom: none;
+  }
+  
+  .add-button {
+    padding: 4px 8px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  @media(min-width:850px){
+    .ProfilePage{
+      padding: 4px;
+    }
+    .add-participants-popup{
+      left: 67%;
+    }
+  }

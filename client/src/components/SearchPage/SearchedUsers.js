@@ -1,14 +1,11 @@
 import React, { useState,useContext } from 'react'
 import GlobalUsers from './GlobalUsers'
-import LocalSearch from './LocalSearch'
-// import { AppContext } from '../Context/ContextProvider'
+import LocalUsers from './LocalUsers'
 
 const SearchedUsers = (
   {isAdding,isSearch,setGlobalSearch,
   setSingleChat,setloadAll,setAddingGroup,
   foundUser,isSearchingGlobal,}) => {
-
-  // const {setClicked} =useContext(AppContext)
 
   const[foundLocal,setLocal]=useState(true)
 
@@ -25,11 +22,6 @@ const SearchedUsers = (
     setGlobalSearch(false)
     }
   }
-  // let clickedUser=()=>{
-  //   if(!foundUser.data){
-  //     return
-  //   }
-  // }
   let clickOn={
     backgroundColor:'#477147'
   }
@@ -63,7 +55,7 @@ const SearchedUsers = (
               {isSearchingGlobal===false &&
               <div className='Local-users-all'>
               {!foundLocal?'Could not find locally':
-              <LocalSearch setSingleChat={setSingleChat}/>
+              <LocalUsers setloadAll={setloadAll} setSingleChat={setSingleChat}/>
               }
             </div>
               }
