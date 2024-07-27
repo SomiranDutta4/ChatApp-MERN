@@ -81,7 +81,7 @@ const SearchPage = (
     <div className='searchDivContainer'>
         <div className='searchDiv'>
       <div className='AppName'>
-        <span className='companyName'>AppName</span>
+        <span className='companyName'>ChatNgine</span>
       </div>
       <div className='addDiv'>
         <button onClick={SearchUsers} className='addBtn'>{isAdding?'✕':'+'}</button>
