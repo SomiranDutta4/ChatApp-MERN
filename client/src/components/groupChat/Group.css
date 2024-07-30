@@ -107,3 +107,19 @@
       left: 75%;
     }
   }
+  .searchGlobal-grp{
+    padding: 4px;border-radius: 5px;border: 1px solid grey;
+  }
+  .search-button{
+    margin-right: 10px;
+    padding: 10px 20px;
+    color: #e0e5eb;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer  }
+    .search-button.isSearching-false{
+      background-color: #2e3d4d;
+    }
+    .search-button.isSearching-true{
+      background-color: #2e3d4d;
+    }

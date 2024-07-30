@@ -8,12 +8,16 @@ import { useNavigate } from 'react-router-dom';
 
 const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
   let navigate=useNavigate()
-  let {AllChats,User,setChats}=useContext(AppContext)
+  let {AllChats,User,setChats,setUser}=useContext(AppContext)
     const [groupName, setGroupName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [created,setCreated]=useState(false)
     const [localUsers,setLocalUsers]=useState([])
+    const [global,setGlobalusers]=useState([])
     const [errorMsg,setErrorMsg]=useState('')
+    const [searchingGlobal,setSearchingGLobal]=useState(false)
+    const [searchInput,setSearchinput]=useState('')
+    const [searchTimeout, setSearchTimeout] = useState(null);
 
     let LoadAll=()=>{
     let foundUsers=[]
@@ -30,6 +34,22 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
         });
       }
       setLocalUsers(foundUsers)
+    }
+    let loadParticular=async (value)=>{
+      if(searchingGlobal===false){
+        return
+      }
+      let url=`http://localhost:2000/user/search/?user=${value}&token=${User.token}`
+      let response=await fetch(url)
+      let data=await response.json()
+      console.log(response,data)
+      if(response.status==401){
+        setUser('')
+        localStorage.removeItem('UserData')
+        return
+      }else if(response.status==201){
+        setGlobalusers(data.users)
+      }
     }
 
    
@@ -111,7 +131,24 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
     setloadAll(true)
     setSingleChat(false)
   }
-  
+  const handleSearchChange = (e) => {
+    setSearchinput(e.target.value);
+    if (searchTimeout) {
+      clearTimeout(searchTimeout);
+    }
+    setSearchTimeout(
+      setTimeout(() => {
+        loadParticular(e.target.value);
+      }, 1000) // Wait for 1000ms (1 second) before executing searchGlobal
+    );
+  };
+  const toggleSearch=()=>{
+    if(searchingGlobal===false){
+      setSearchingGLobal(true)
+    }else{
+      setSearchingGLobal(false)
+    }
+  }
   useEffect(()=>{
     LoadAll();
   },[])
@@ -130,6 +167,12 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
          <button onClick={GoBack} className="back-button">
           Back
         </button>
+        <button onClick={toggleSearch} className={`search-button isSearching-${searchingGlobal}`}>
+          {searchingGlobal===true?'select local users':'Find users'}
+        </button>
+        {searchingGlobal===true &&
+        <input value={searchInput} onChange={handleSearchChange} className='searchGlobal-grp' placeholder='Enter name'></input>
+        }
       <h2>Create a New Group</h2>
       <div className='group-form'>
         <label htmlFor="group-name">Group Name:</label>
@@ -143,7 +186,8 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
         />
         <div className="member-selection-container">
           <p>Select Members:</p>
-          {localUsers.map(user => (
+          {searchingGlobal===false &&
+          <>{localUsers.map(user => (
             <div
               key={user._id}
               className={`member-item ${selectedMembers.includes(user._id) ? 'selected' : ''}`}
@@ -154,11 +198,32 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
               {user.contactNumber}
               {selectedMembers.includes(user._id) && <button className='deselect-member-group'>✕</button>}
             </div>
-          ))}
+          ))}</>
+          }
+          {searchingGlobal===true&&
+          <>{global.map(user => (
+            <>
+            {user._id!==User._id &&
+            <div
+            key={user._id}
+            className={`member-item ${selectedMembers.includes(user._id) ? 'selected' : ''}`}
+            onClick={() => handleMemberSelect(user._id)}
+          >   
+            {user.name}:⠀
+            {user.contactNumber}
+            {selectedMembers.includes(user._id) && <button className='deselect-member-group'>✕</button>}
+          </div>
+            }
+            </>
+          ))}</>
+          }
         </div>
         <button onClick={CreateGroup} className="create-group-button">
           Create Group
         </button>
+        <div>{selectedMembers.length}‎ 
+          members selected
+        </div>
       </div>
     </div>
     </>

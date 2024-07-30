@@ -2,6 +2,9 @@ import './auth.css'
 import React,{useState,useEffect,useContext} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../Context/ContextProvider'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+
 const Login = ({}) => {
 
   const {setUser}=useContext(AppContext)
@@ -55,7 +58,7 @@ const Login = ({}) => {
       pass2==='show'?setPass2('hide'):setPass2('show')
     }
     const typeNumber=(event)=>{
-      setNumber(event.target.value)
+      setNumber(event.target.value.trim())
     }
     // const typeEmail=(event)=>{
     //   setMail(event.target.value)
@@ -75,6 +78,10 @@ const Login = ({}) => {
 
 
     async function login(){
+      if(!Password.trim()){
+        setErrorfunc('password cannot be empty','error')
+        return
+      }
       //200,401,500,400-no user
       let Loginurl=`http://localhost:2000/user/Login/?email=${number}&password=${Password}`
       try {
@@ -98,6 +105,8 @@ const Login = ({}) => {
           setErrorfunc('Entered password was incorrect','error')
         }else if(response.status===400){
           setErrorfunc('No Account exist, Sign up first','error')
+        }else if(response.status===440){
+          setErrorfunc('The entered email must be valid','error')
         }else{
           let data=await response.json()
           console.log(data)
@@ -113,6 +122,10 @@ const Login = ({}) => {
     async function SignUp(){
       //200,401,500
       if(confirmPassword!==Password){
+        setErrorfunc('The passwords did not match','error')
+        return
+      }else if(Password.trim().length<6){
+        setErrorfunc('The password should contain atleast 6 characters','error')
         return
       }
       let SignUpurl='http://localhost:2000/user/Signup'
@@ -136,6 +149,8 @@ const Login = ({}) => {
           setDoing('login')
         }else if(response.status===500){
           setErrorfunc('Something went wrong, we are trying to fix it','error')
+        }else if(response.status===440){
+          setErrorfunc('Email must be valid and the password must be atleast 6 characters long','error')
         }else{
           setErrorfunc('Account already exist with the entered number','error')
         }

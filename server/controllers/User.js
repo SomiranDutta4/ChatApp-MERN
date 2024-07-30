@@ -2,8 +2,12 @@ const tokenGenerate=require('../config/JWTs')
 const User=require('../Models/User')
 const bcrypt=require('bcrypt')
 const mongoose=require('mongoose')
+const { validationResult } = require('express-validator');
 
 module.exports.signUp=function(req,res){
+    let errors=validationResult(req);
+    if (!errors.isEmpty()) {return res.status(440).json({message:'validation failed'})}
+
     User.findOne({contactNumber:req.body.number}).then(user=>{
         if(user){
             return res.status(401).json({message:'user already exists'})
@@ -36,6 +40,9 @@ module.exports.signUp=function(req,res){
 }
 
 module.exports.signIn=function(req,res){
+    let errors=validationResult(req);
+    if (!errors.isEmpty()) {return res.status(440).json({message:'validation failed'})}
+
     let password=req.query.password
     User.findOne({
         contactNumber:req.query.email

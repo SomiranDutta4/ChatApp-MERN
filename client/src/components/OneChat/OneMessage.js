@@ -162,18 +162,20 @@ const OneMessage = ({
   }
   const checkSeen=()=>{
     try {
-      for(let i=0;i<readBy.length;i++){
-        if(readBy[i]._id!==User._id){
-          let seenBy=seen
-          seenBy.push(
-            [i].name)
-          setSeenBy(seenBy)
+      let seenArray=[]
+      readBy.forEach(element => {
+        if(element._id!==User._id){
+          seenArray.push(element.name)
         }
-    }
+        setSeenBy(seenArray)
+      });
     } catch (error) {}
   }
   const seeReadBy=()=>{
-    setshowing(true)
+    if(showingSeen===false){
+    setshowing(true)}else{
+      setshowing(false)
+    }
   }
   const hideReadBy=()=>{
     setshowing(false)
@@ -224,7 +226,7 @@ const OneMessage = ({
           }
 
           {senderId===User._id && seen.length===0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
-          <FontAwesomeIcon className='hasBeenSeen'  onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEyeSlash} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
+          <FontAwesomeIcon className='hasBeenSeen' onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEyeSlash} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
           }
 
           {senderId===User._id && clickedChat.isGroupChat===false && seen.length>0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
@@ -235,8 +237,9 @@ const OneMessage = ({
             }
         </div>
         {showingSeen===true && seen.length>0 && clickedChat.isGroupChat===true &&
-          <div className='seenBy-div'>
-            <button onClick={hideReadBy} className='closeBtn-seenBy'>+</button>
+          <div className='seenBy-div container'>
+            <button onClick={hideReadBy} className='closeBtn-seenBy'>×
+            </button>
           readBy:
           {seen.map((element)=>{
             return <p>{element}</p>
