@@ -210,7 +210,14 @@ const Login = ({}) => {
             </div>
             <div className="field flexField">
               <input onChange={typePassword} value={Password} className='passwordInput' type={pass==='show'?'text':'password'} placeholder="Password" required/>
-              <p className='togglePass' onClick={togglePass} >{pass==='show'?'hide':'show'}</p>
+              <p className='togglePass' onClick={togglePass} >
+                {pass==='show'&&
+                <FontAwesomeIcon icon={faEyeSlash}></FontAwesomeIcon>
+                }
+                {pass==='hide' &&
+                <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                }
+              </p>
             </div>
             {/* <a className='toggleAnchor' >{pass=='show'?'hide':'show'}  icon="fa-solid fa-eye<FontAwesomeIcon icon="fas fa-eye-slash" />" password</a> */}
             <div className="pass-link"><a href="#">Forgot password?</a></div>
@@ -236,7 +243,14 @@ const Login = ({}) => {
             </div>
             <div className="field flexField">
               <input onChange={typeconfirmPassword} value={confirmPassword} className='passwordInput' type={pass2==='show'?'text':'password'} placeholder="Confirm password" required/>
-              <p className='togglePass' onClick={togglePass2} >{pass2==='show'?'hide':'show'}</p>
+              <p className='togglePass' onClick={togglePass2} >
+              {pass==='show'&&
+                <FontAwesomeIcon icon={faEyeSlash}></FontAwesomeIcon>
+                }
+                {pass==='hide' &&
+                <FontAwesomeIcon icon={faEye}></FontAwesomeIcon>
+                }
+              </p>
             </div>
             <div className="field btn">
               <div className="btn-layer"></div>
