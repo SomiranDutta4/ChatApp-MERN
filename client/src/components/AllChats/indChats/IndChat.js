@@ -8,7 +8,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
 
   let {
     User,setUser,LoadedChats,setLoadedChats,
-    setClicked,setChats
+    setClicked,setChats,setShowingBot
   }=useContext(AppContext)
   const navigate=useNavigate()
 
@@ -35,6 +35,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     }
     setloadAll(false)
     setSingleChat(true)
+    setShowingBot(false)
     
     if(foundLocal==true){
       let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
@@ -54,6 +55,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     }else{
       setClicked('')
       setSingleChat(true)
+      //i think this is redundant
     }
 
     let url=`http://localhost:2000/chat/get/one/?_id=${_id}&chatName=${chatName}&token=${User.token}`
@@ -101,6 +103,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
       setloadAll(false)
       setClicked(newChat)
       setSingleChat(true)
+      //i think this is redundant
     }
   }
 
@@ -132,7 +135,6 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
     if(senderId===User._id){
       setSender('you')
     }}
-    console.log(lmContent)
   },[])
   
   return (

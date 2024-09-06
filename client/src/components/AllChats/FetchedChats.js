@@ -3,10 +3,12 @@ import IndChat from './indChats/IndChat'
 import { useNavigate } from 'react-router-dom'
 import LoadingScreen from './LoadingScreen'
 import {AppContext} from '../Context/ContextProvider'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
 const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat}) => {
  
-  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound}=useContext(AppContext)
+  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound,setShowingBot,showingBot}=useContext(AppContext)
   const navigate=useNavigate()
 
   let getChats=async()=>{
@@ -88,13 +90,19 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
         }
         setLoading(false)
       } catch (error) {
-        console.log(error)
+        localStorage.removeItem('UserData')
+        setUser('')
+        navigate('/Login')
       }
+}
+const loadBotAcc=()=>{
+  setSingleChat(false)
+  setShowingBot(true)
+  setloadAll(false)
 }
 
   useEffect(()=>{
     getChats()
-    console.log(AllChats)
       // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
@@ -118,6 +126,12 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
        <div style={{color:'white',textAlign:'center',margin:'20px 0 20px 0',fontSize:'120%'}}>No Chats to display</div>
       }
       </div>
+      {showingBot===false &&
+      <div onClick={loadBotAcc}  className='botContainer'>
+        <span className='BotText'>Talk with Ai </span>
+        <FontAwesomeIcon icon={faRobot}></FontAwesomeIcon>
+      </div>}
+
     </div>
   )
 }

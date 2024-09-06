@@ -11,7 +11,7 @@ const Onechat = ({setSingleChat,setloadAll}) => {
     const [showChatDetails,setSHowChat]=useState(false)
     const {
         clickedChat,setClicked,User,setUser,setLoading,socket,NewMEssageHandler,
-        LoadedChats,setLoadedChats,AllChats,setChats,setSending,SeeMessage
+        LoadedChats,AllChats,setChats,setSending,SeeMessage,showingBot
     }=useContext(AppContext)
     const navigate=useNavigate()
    
@@ -34,10 +34,10 @@ const Onechat = ({setSingleChat,setloadAll}) => {
             content:newMsgessage,
             createdAt:new Date(),
             sender:User,
+            isDeleted:false,
             readBy:[User],
             status:"sending"
         }
-        console.log(LoadedChats[0],clickedChat)
 
         NewMEssageHandler(newMsg)
         setSending(true)
@@ -69,8 +69,7 @@ const Onechat = ({setSingleChat,setloadAll}) => {
             reqId:clickedChat.reqId?clickedChat.reqId:null
         })
     })
-
-    let data=await response.json()
+    let data=await response.json();
 
     let newChat={
         pic:clickedChat.pic,
@@ -80,11 +79,10 @@ const Onechat = ({setSingleChat,setloadAll}) => {
         users:clickedChat.users,
         latestMessage:data.chat.latestMessage
     }
-
     let newMessage=data.chat
-    console.log(newMessage)
     try {
-        socket.emit("new message", data.chat)        
+        socket.emit("new message", data.chat)
+        console.log(data.chat);       
     } catch (error) {
         console.log(error)
     }
@@ -131,17 +129,18 @@ const Onechat = ({setSingleChat,setloadAll}) => {
   },[clickedChat])
 
 useEffect(()=>{
-    console.log('whoo',clickedChat)
   },[])
+useEffect(()=>{
+},[clickedChat])
 
-
-if(showChatDetails===false){
+if(showChatDetails===false && showingBot===false){
     return (
         <div className='chatDisplay'>
             {!clickedChat && 
         <div className='spinnerDiv-group'><FontAwesomeIcon style={{color:'white'}} className="spinner-Group fa-spin-pulse" icon={faSpinner}></FontAwesomeIcon></div>
     }
-
+    {clickedChat &&
+        <>
          <div className='chatdetailsContainer'>
             <div className='backBtnDiv'><button onClick={clickedBack} className='backbtn'>&#8592;</button></div>
             <div className='chatDetails'>
@@ -167,7 +166,7 @@ if(showChatDetails===false){
          <div className='chatDisplayContainer'>
             {clickedChat.messages && clickedChat.messages.length>0 &&
                 clickedChat.messages.map((element) => {
-                    return <OneMessage isDeleted={element.isDeleted} key={element._id} message={element.content} messageId={element._id} chatId={clickedChat._id} 
+                    return <OneMessage ShMessage={element} isDeleted={element?.isDeleted} key={element._id} message={element.content} messageId={element._id} chatId={clickedChat._id} 
                     userToken={User.token} status={element.status?element.status:'sent'} sentBy={clickedChat.isGroupChat===true?element.sender.name:null} readBy={element.readBy}
                     sender={User._id===element.sender._id?'byMe':User._id===element.sender?'byMe':'byThem'} senderId={element.sender._id}
                     />
@@ -189,6 +188,7 @@ if(showChatDetails===false){
                 </div>
             </div>
          </div>
+         </>}
         </div>
       )
   }else{

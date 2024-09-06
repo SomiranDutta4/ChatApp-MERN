@@ -155,3 +155,28 @@ module.exports.editMessage=async function(req,res){
 
 }
 
+const { OpenAI } = require("openai");
+
+const openai = new OpenAI({
+  apiKey: '4e2fee42f265418faa03520d92379556',
+  baseURL: "https://api.aimlapi.com",
+});
+
+module.exports.sendAiMessage=async function(req,res){
+    try {
+        const chatCompletion = await openai.chat.completions.create({
+            model: "mistralai/Mistral-7B-Instruct-v0.2",
+            messages: [
+              { role: "system", content: "Your name is Bhidu, be playful and helpful"},
+              { role: "user", content: req.body.content }
+            ],
+            temperature: 0.7,
+            max_tokens: 128,
+          });
+        return res.status(200).json({message:'message',content:chatCompletion.choices[0].message.content})
+    } catch (error) {
+        console.log(error);
+        return res.status(200).json({message:'some error',content:"some error occured..."})
+    }
+
+};

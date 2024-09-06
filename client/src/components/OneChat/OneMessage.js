@@ -6,8 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const OneMessage = ({
   message,sender,userToken,senderId,sentBy,
-  chatId,messageId,status,isDeleted,readBy
-
+  chatId,messageId,status,isDeleted,readBy,ShMessage
   }) => {
 
   const {clickedChat,setClicked,AllChats,LoadedChats,
@@ -163,7 +162,7 @@ const OneMessage = ({
   const checkSeen=()=>{
     try {
       let seenArray=[]
-      readBy.forEach(element => {
+      ShMessage.readBy.forEach(element => {
         if(element._id!==User._id){
           seenArray.push(element.name)
         }
@@ -216,20 +215,20 @@ const OneMessage = ({
       }
       </div>}
         <div  className='message messageDiv-Msg'>
-          {senderId!==User._id && sentBy &&
+          {ShMessage.sender._id && ShMessage.sender._id!==User._id && sentBy &&
             <p className='senderName-group'>{sentBy}</p>
           }
           <span style={{padding:'4px'}} id={messageId}>{message}</span>
 
-          {senderId===User._id && clickedChat.isGroupChat===true && seen.length>0  &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===true && seen.length>0  &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen' onClick={seeReadBy} icon={faEye} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
           }
 
-          {senderId===User._id && seen.length===0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {ShMessage.sender._id && ShMessage.sender._id===User._id && seen.length===0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen' onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEyeSlash} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
           }
 
-          {senderId===User._id && clickedChat.isGroupChat===false && seen.length>0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===false && seen.length>0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen'  onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEye} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
           }
             {messageStatus==='sending' && 

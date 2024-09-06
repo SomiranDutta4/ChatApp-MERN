@@ -85,7 +85,11 @@ color: rgb(182, 182, 234);
   .chatDpDiv {
     margin-right: 10px;
   }
-  
+  .chatDp-Bot img{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+  }
   .chatDp img {
     width: 40px;
     height: 40px;
@@ -471,9 +475,22 @@ z-index: 100;
   max-height: 5.8vh;aspect-ratio: 1;display: flex;align-items: center;margin:1px 4px 1px 4px ;}
 
 @media(min-width:850px){
+  .botContainer{
+    right: 52vw;
+  }
   .AdminsEditor{
     left:75% ;
     transform: translateX(-70%);
+  }
+}
+@media(max-width:850px){
+.botContainer{
+  right: 2vw;
+}
+}
+@media(min-width:850px){
+  .chatMessages-options-Div div {
+    max-width: 40vw;
   }
 }
 @media(max-width:600px){
@@ -500,3 +517,7 @@ z-index: 100;
 }
 .freezedDisplay{position: absolute;width: 100%;height: 100%;background-color: rgba(255, 255, 255, 0.158);}
 .closeBtn-seenBy{cursor: pointer; border: none;padding: 3px;background: transparent;color: rgb(255, 0, 0);font-size: 150%;}
+.botContainer{position: absolute;color: white;cursor: pointer;font-size: 140%;
+bottom: 3vh}
+.BotText{font-size: 80%;}
+.loadingBotMessage{padding-left: 7px;}

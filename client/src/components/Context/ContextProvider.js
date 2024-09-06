@@ -25,9 +25,10 @@ const ContextProvider = ({children}) => {
     const [AccountPage,setAccountPage]=useState(false)
     const [LocalFound,setLocalFound]=useState([])
     const [socketConnected, setSocketConnected] = useState(false);
+    const [showingBot,setShowingBot]=useState(false)
+    const [messageLoading,setMsgLoadig]=useState(false)
 
     const NewMEssageHandler=(Message)=>{
-        console.log(Message)
       if(clickedChat && clickedChat.messages.length>0 && clickedChat.messages[clickedChat.messages.length-1]._id===Message._id){
           return
       }
@@ -40,6 +41,7 @@ const ContextProvider = ({children}) => {
               newClicked.messages.push(Message)
           }
       }
+      setClicked(newClicked);
 
       let allLoaded=LoadedChats
       let index=-1
@@ -71,7 +73,7 @@ const ContextProvider = ({children}) => {
           arrangedChats.unshift(firstChat)
       }}
       setChats(arrangedChats)
-      setClicked(newClicked)
+    //   setClicked(newClicked)
       setLoadedChats(allLoaded)
   }
   let SeeMessage=async()=>{
@@ -123,8 +125,8 @@ const ContextProvider = ({children}) => {
 
   return (
     <AppContext.Provider value={{
-        AllChats,setChats,isLoading,setLoading,LocalFound,setLocalFound,NewMEssageHandler,
-        LoadedChats,setLoadedChats,User,setUser,isSending,setSending,SeeMessage,
+        AllChats,setChats,isLoading,setLoading,LocalFound,setLocalFound,NewMEssageHandler,messageLoading,setMsgLoadig,
+        LoadedChats,setLoadedChats,User,setUser,isSending,setSending,SeeMessage,showingBot,setShowingBot,
         clickedChat,setClicked,AccountPage,setAccountPage,socket,socketConnected,setSocketConnected
     }}>
         {children}

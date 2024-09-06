@@ -310,3 +310,19 @@ module.exports.bringNew=function(req,res){
         return res.status(500).json({message:err.message})
     })
 }
+
+module.exports.getAi=async function(req,res){
+    const AiBot=await Chat.findOne({chatName:'4f6e7a6b7e2d8a9c3b4d5e1f6a7c8b9d0e1f2a3b4c5d6e7f8a9c0d1e2f3a4b5c'})
+    if(AiBot){
+        AiBot.chatName='Ai Bot'
+        return res.status(200).json({message:'found the Bot',AiBot:AiBot})
+    }
+    await Chat.create({
+        chatName:'4f6e7a6b7e2d8a9c3b4d5e1f6a7c8b9d0e1f2a3b4c5d6e7f8a9c0d1e2f3a4b5c',
+        pic:'https://img.freepik.com/free-vector/graident-ai-robot-vectorart_78370-4114.jpg?size=338&ext=jpg&ga=GA1.1.2008272138.1722297600&semt=ais_hybrid',
+        users:[],
+    })
+    const newAi=await Chat.find({chatName:'4f6e7a6b7e2d8a9c3b4d5e1f6a7c8b9d0e1f2a3b4c5d6e7f8a9c0d1e2f3a4b5c'})
+    newAi.chatName='Ai Bot'
+    return res.status(200).json({message:'created new one',AiBot:newAi})
+}

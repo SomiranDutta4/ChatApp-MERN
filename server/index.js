@@ -49,8 +49,8 @@ io.on('connection',(socket)=>{
         if (users.length<=1) return console.log("no other user to send");
     
         users.forEach((user) => {
-          if (user !== newMessage.latestMessage.sender._id){
-            socket.in(user).emit("message recieved", newMessage)
+          if (user._id !== newMessage.latestMessage.sender._id){
+            socket.in(user._id).emit("message recieved", newMessage)
           }
         });
       });

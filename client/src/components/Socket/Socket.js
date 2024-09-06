@@ -11,21 +11,24 @@ const Socket = () => {
            return 
         }
          socket.on("message recieved",(newMessage)=>{
+          const newChat=clickedChat;
             if(clickedChat&& clickedChat.messages[clickedChat.messages.length-1]._id===newMessage.latestMessage._id){
-                return
+              console.log(clickedChat);
+              return
             }else{
-                    NewMEssageHandler(newMessage.latestMessage)
-                    if(clickedChat && newMessage._id!==clickedChat._id){
-                    let number=SeeMessage()
-                    let details={
-                        UserId:User._id,
-                        userPic:User.pic,
-                        userName:User.name,
-                        chatId:clickedChat._id,
-                        number:number
-                    }
-                    socket.emit('see Message',details)
-                }
+              console.log(newChat);
+              NewMEssageHandler(newMessage.latestMessage)
+            //         if(clickedChat && newMessage._id===clickedChat._id){
+            //         let number=SeeMessage()
+            //         let details={
+            //             UserId:User._id,
+            //             userPic:User.pic,
+            //             userName:User.name,
+            //             chatId:clickedChat._id,
+            //             number:number
+            //         }
+            //         socket.emit('see Message',details)
+            //     }
             }
          })
       })
@@ -121,9 +124,6 @@ const Socket = () => {
       })
     })
     
-    useEffect(()=>{
-      console.log('whoo',clickedChat)
-    },[clickedChat])
 
   return (
     <div></div>
