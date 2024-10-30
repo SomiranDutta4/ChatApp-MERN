@@ -113,62 +113,69 @@ module.exports.searchForGroup=function(req,res){
     })
 }
 
-module.exports.editName=function(req,res){
-    User.findOne({contactNumber:req.use.contactNumber}).then(user=>{
-        user.name=req.body.name
-        user.save()
-        return res.status(200).json({message:'changed Successfully'})
-    }).catch(err=>{
-        return res.status(500).json({message:'error changing name, please try later'})
-    })
-}
+// module.exports.editName=function(req,res){
+//     User.findOne({contactNumber:req.use.contactNumber}).then(user=>{
+//         user.name=req.body.name
+//         user.save()
+//         return res.status(200).json({message:'changed Successfully'})
+//     }).catch(err=>{
+//         return res.status(500).json({message:'error changing name, please try later'})
+//     })
+// }
 
-module.exports.editPassword=function(req,res){
-    User.findOne({contactNumber:req.user.contactNumber,password:req.body.oldPassword}).then(user=>{
-        if(user){
-            user.password=req.body.newPasword
-            user.save()
-            return res.status(200).json({message:'successfully updated'})
-        }else{
-            return res.status(400).json({message:'could not update'})
-        }
-    }).catch(err=>{
-        return res.status(500).json({message:'error occured'})
-    })
-}
-module.exports.editAcc=function(req,res){
-    User.findById(req.user._id).then(user=>{
-        if(user){
-            if(user.password!=req.body.oldPassword){
-                return res.status(400).json({message:'wrong old pass'})
-            }else{
-                user.name=req.body.newName
-                user.contactNumber=req.body.newNumber
-                user.password=req.body.newPass
-                user.pic=req.body.newPic
-                user.save()
-    
-                let newPic=user.pic
-                if(req.body.newPic){newPic=req.body.newPic}
-                let user={
-                    name:req.body.newName,
-                    contactNumber:req.body.newNumber,
-                    email:user.email,
-                    pic:newPic,
-                    isAdmin:user.isAdmin
+// module.exports.editPassword=function(req,res){
+//     User.findOne({contactNumber:req.user.contactNumber,password:req.body.oldPassword}).then(user=>{
+//         if(user){
+//             user.password=req.body.newPasword
+//             user.save()
+//             return res.status(200).json({message:'successfully updated'})
+//         }else{
+//             return res.status(400).json({message:'could not update'})
+//         }
+//     }).catch(err=>{
+//         return res.status(500).json({message:'error occured'})
+//     })
+// }
+module.exports.editAcc=async function(req,res){
+    console.log(req.body)
+    try {
+        let user=await User.findById(req.user._id)
+            if(user){
+                let result=await bcrypt.compare(user.password,req.body.oldPassword)
+                if(req.body.newPass && !result){
+                    return res.status(400).json({message:'wrong old pass'})
+                }else{
+                    user.name=req.body.newName
+                    user.contactNumber=req.body.newNumber
+                    // user.password=req.body.newPass
+                    user.pic=req.body.newPic
+                    user.save()
+                    if(req.body.newPass){
+                        let newPass=await bcrypt.hash(req.body.newPass,12)
+                        user.password=newPass
+                        user.save()
+                    }
+                    // let newPic=user.pic
+                    // if(req.body.newPic){newPic=req.body.newPic}
+                    // let user={
+                    //     name:req.body.newName,
+                    //     contactNumber:req.body.newNumber,
+                    //     email:user.email,
+                    //     pic:newPic,
+                    //     isAdmin:user.isAdmin
+                    // }
+                    return res.status(200).json({
+                        message:'updated',
+                        _id:user._id,
+                        user:user
+                    })
                 }
-                return res.status({
-                    message:'updated',
-                    _id:user._id,
-                    user:user
-                })
+            }else{
+                return res.status(400).json({message:'could not update'})
             }
-        }else{
-            return res.status(400).json({message:'could not update'})
-        }
-    }).catch(err=>{
+    } catch (err) {
         return res.status(500).json({message:'some error occured, we regtret our shortcomings'})
-    })
+    }
 }
 
 module.exports.authenticate=function(req,res){

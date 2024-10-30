@@ -10,7 +10,7 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
 
     const [name,setName]=useState({prev:User.name,now:User.name})
     const [Number,setNumber]=useState({prev:User.contactNumber,now:User.contactNumber})
-    const [password,setPassword]=useState({prev:'',now:'*******'})
+    const [password,setPassword]=useState({prev:'',now:''})
     const [oldPass,setOldPass]=useState({prev:'',now:''})
     const [loaded,setLoaded]=useState(false)
     const [hasEdited,setEdited]=useState(false)
@@ -22,27 +22,32 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
 
     let editSetNewDetails=async()=>{
         setEdited(true)
-        if(name.prev===name.now && Number.prev===Number.now && oldPass===password){
-            setEdited(false)
-            return
+        // if(name.prev===name.now && Number.prev===Number.now){
+        //     setEdited(false)
+        //     return
+        // }
+        if(oldPass.now && !password.now){
+            setError('password cannot be empty')
+            return;
         }
-        if(oldPass===''){
-            setEdited(false)
+        if(!oldPass.now && password.now){
+            setError('password cannot be empty')
             return
         }
         let url=`http://localhost:2000/user/edit/account/?token=${User.token}`
         try {
             let response=await fetch(url,{
                 method:'PATCH',
-                headers:{
-    
-                },
-                body:{
+                headers: {
+                    'Content-Type': 'application/json', // Specify content type JSON
+                }, 
+                body:JSON.stringify({
                     newName:name.now,
                     newNumber:Number.now,
                     oldPassword:oldPass.now,
-                    newPass:password.now
-                }
+                    newPass:password.now,
+                    newPic:User.pic
+                })
             })
             if(response.status===400){
                 setError('Could not Update')
@@ -64,7 +69,7 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
                 },2000)
                 return
             }
-            else{
+            
                 let data=await response.json()
                 let newUser={
                     _id:User._id,
@@ -76,7 +81,8 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
                     isAdmin:data.user.isAdmin
                 }
                 setUser(newUser)
-            }
+                localStorage.setItem('UserData',JSON.stringify(newUser))
+                setEdited(false);
         } catch (error) {
             setError('Could not Update')
                 setTimeout(()=>{
@@ -180,6 +186,10 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
     }
  const editOldPassword=()=>{
        if(isEditingOldPass===false){
+        setOldPass({
+            prev:oldPass.prev,
+            now:oldPass.prev
+        })
         setEditName(false)
         setEditNumber(false)
       setEditPass(false)
@@ -307,14 +317,14 @@ const SettingsPage = ({setloadAll,setSingleChat}) => {
             </div>
            
             <div className='ChangeDiv-Profile Account'>
-                <input onChange={changeOldPass} className={`editField-edit password ${isEditingOldPass} `} value={oldPass.now}></input>
+                <input placeholder='Old Password' onChange={changeOldPass} className={`editField-edit password ${isEditingOldPass} `} value={oldPass.now}></input>
                 <button onClick={editOldPassword}  className='EditBtn-profilePage'>{isEditingOldPass===true?'Save':'Edit'}</button>
                 {isEditingOldPass===true &&
                 <button onClick={CancelOldPass} className='CancelBtn-profileBtn'>❌</button>}
             </div>
 
             <div className='ChangeDiv-Profile Account'>
-                <input onChange={changePass} className={`editField-edit password ${isEditingPass} `} value={password.now}></input>
+                <input placeholder='New Password' onChange={changePass} className={`editField-edit password ${isEditingPass} `} value={password.now}></input>
                 <button onClick={EditPass}  className='EditBtn-profilePage'>{isEditingPass===true?'Save':'Edit'}</button>
                 {isEditingPass===true &&
                 <button onClick={CancelPass} className='CancelBtn-profileBtn'>❌</button>}

@@ -163,14 +163,12 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
             }
             </div>
             <div className='chatElelmInd'>
-            {unreadMsg>0 &&
-              <div className='unreadMsg-chat'>{unreadMsg}</div>
-            }            
+      
             <span className='sentAt LMdetails'>
               {timePassed}
             </span>
             {unreadMsg>0 &&
-              <div className='unreadMsg-chat'>{unreadMsg}</div>
+              <div className='unreadMsg-chat'></div>
             }
             </div>
         </div>

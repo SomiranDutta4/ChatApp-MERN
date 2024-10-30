@@ -167,7 +167,7 @@ module.exports.sendAiMessage=async function(req,res){
         const chatCompletion = await openai.chat.completions.create({
             model: "mistralai/Mistral-7B-Instruct-v0.2",
             messages: [
-              { role: "system", content: "Your name is Bhidu, be playful and helpful"},
+              { role: "system", content: "Your name is Bhidu, be playful and give short answers"},
               { role: "user", content: req.body.content }
             ],
             temperature: 0.7,

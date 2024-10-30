@@ -18,6 +18,7 @@ const ChatBot = ({setloadAll,setSingleChat}) => {
     const {User,setShowingBot,clickedChat,setClicked,setSending,setUser,setChats,messageLoading,setMsgLoadig}=useContext(AppContext)
 
     const getTheAi=async()=>{
+        // setClicked('')
         const AiUrl=`http://localhost:2000/chat/ai/bot/?token=${User.token}`
         const response=await fetch(AiUrl)
         if(response.status===200){

@@ -52,7 +52,7 @@ useEffect(()=>{
       <div className='ChatPage'>
         {isAddingGroup===false && AccountPage===false &&<AllChats setAddingGroup={setAddingGroup} windowWidth={windowWidth} loadAll={loadAll}  isSingleChat={isSingleChat} setSingleChat={setSingleChat} setloadAll={setloadAll}/>}
         {showingBot===true&& isSingleChat===false &&AccountPage===false &&<ChatBot setSingleChat={setSingleChat} setloadAll={setloadAll}></ChatBot>}
-        {isSingleChat && isAddingGroup===false && AccountPage===false && <Onechat loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
+        {isSingleChat &&showingBot===false&& isAddingGroup===false && AccountPage===false && <Onechat loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
         {/* {isSingleChat && isAddingGroup===false && AccountPage===false && <MainChatPage loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />} */}
         {!isSingleChat && isAddingGroup===false && AccountPage===false &&showingBot===false && <ChatSideWindow/>}
         {isAddingGroup===true && <Group setloadAll={setloadAll } setSingleChat={setSingleChat} setAddingGroup={setAddingGroup}></Group>}

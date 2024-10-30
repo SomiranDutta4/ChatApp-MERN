@@ -8,7 +8,7 @@ import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
 const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat}) => {
  
-  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound,setShowingBot,showingBot}=useContext(AppContext)
+  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound,setShowingBot,showingBot,setClicked}=useContext(AppContext)
   const navigate=useNavigate()
 
   let getChats=async()=>{
@@ -96,6 +96,7 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
       }
 }
 const loadBotAcc=()=>{
+  setClicked('')
   setSingleChat(false)
   setShowingBot(true)
   setloadAll(false)
