@@ -1,12 +1,12 @@
 import React, { useState,useContext, useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { AppContext } from '../Context/ContextProvider';
-import { faPaperPlane,faEye,faGear,faClock,faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { faPaperPlane,faGear,faClock } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 const OneMessage = ({
-  message,sender,userToken,senderId,sentBy,
-  chatId,messageId,status,isDeleted,readBy,ShMessage
+  message,sender,userToken,sentBy,
+  chatId,messageId,status,isDeleted,ShMessage
   }) => {
 
   const {clickedChat,setClicked,AllChats,LoadedChats,
@@ -73,7 +73,7 @@ const OneMessage = ({
     setSending(true)
     let deleteUrl=`http://localhost:2000/message/delete/?token=${userToken}`
     try {
-      let response=await fetch(deleteUrl,{
+      await fetch(deleteUrl,{
         method:'DELETE',
         headers: {
           'Content-Type': 'application/json', // Specify content type JSON
@@ -220,17 +220,17 @@ const OneMessage = ({
           }
           <span style={{padding:'4px'}} id={messageId}>{message}</span>
 
-          {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===true && seen.length>0  &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {/* {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===true && seen.length>0  &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen' onClick={seeReadBy} icon={faEye} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
-          }
+          } */}
 
-          {ShMessage.sender._id && ShMessage.sender._id===User._id && seen.length===0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {/* {ShMessage.sender._id && ShMessage.sender._id===User._id && seen.length===0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen' onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEyeSlash} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
-          }
+          } */}
 
-          {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===false && seen.length>0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
+          {/* {ShMessage.sender._id && ShMessage.sender._id===User._id && clickedChat.isGroupChat===false && seen.length>0 &&status!=='sending' && isDeleted===false && clickedChat.users.length>1 &&
           <FontAwesomeIcon className='hasBeenSeen'  onClick={seeReadBy} onMouseLeave={hideReadBy} icon={faEye} style={{color:'black',fontSize:'70%'}}></FontAwesomeIcon>
-          }
+          } */}
             {messageStatus==='sending' && 
               <FontAwesomeIcon icon={faClock} style={{fontSize:'70%', padding:'3px'}}></FontAwesomeIcon>
             }

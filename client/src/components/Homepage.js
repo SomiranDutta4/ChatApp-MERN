@@ -1,9 +1,16 @@
-import React from 'react'
+import React, { useRef } from 'react'
 import { Link } from 'react-router-dom';
 const Homepage = ({}) => {
- 
+  // const mouseMoveHandler=((e)=>{
+  //   curr.current.style.left=`${e.pageX}px`
+  //   curr.current.style.top=`${e.pageY}px`
+  // })
+  // let curr=useRef(null)
   return (
     <>
+    
+    {/* <div ref={curr} style={{display:'flex',position:'absolute',width:'20px',height:'20px',backgroundColor:'white'}}></div> */}
+
     <div class="app-container">
         <h1 class="app-title">
          MERN ChatNgine by Somiran</h1>

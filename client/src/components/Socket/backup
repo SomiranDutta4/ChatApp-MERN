@@ -20,6 +20,64 @@ const Socket = () => {
           setAlert(null)
         }, 1800)
       }
+
+
+      // console.log(newMessage)
+      // console.log(messages)
+      // console.log(clickedChat)
+      // if(clickedChat._id==newMessage.chat && messages[messages.length-1]._id!==newMessage._id){
+      //   let newMessagess=messages;
+      //   newMessagess.push(newMessage);
+      //   setMessages(newMessagess)
+      //   let newChats=AllChats
+      //   for(let i=0;i<AllChats.length;i++){
+      //     if(AllChats._id===newMessage.chat){
+      //       newChats[i].latestMessage=newMessage;
+      //       newChats[i].unseenMsg+=1;
+      //       let firstChat=newChats.splice(i,1)[0];
+      //       newChats.unshift(firstChat);
+      //     }
+      //   }
+      //   if(index!==-1 && index!==0){
+      //     let firstChat=arrangedChats.splice(index,1)[0]
+      //     arrangedChats.unshift(firstChat)
+      // }}
+      // for(let i=0;i<LoadedChats.length;i++){
+      //   if(LoadedChats[i]._id==newMessage.chat){
+      //     LoadedChats[i].unseenMsg=true;
+      //     // LoadedChats.
+      //     console.log(AllChats);
+      //   }
+      // }
+      //   // setMessages([...messages,newMessage]);
+      //   // setMessages([...messages,Message]);
+
+      //   setAlert({type:'text',message:newMessage.content.slice(0, Math.min(15, newMessage.latestMessage.content.length))})
+      // }
+      // else{
+      //   for(let i=0;i<LoadedChats.length;i++){
+      //     if(LoadedChats[i]._id==newMessage.chat){
+      //       LoadedChats[i].unseenMsg=true;
+      //     }
+      //   }
+      // }
+      // const newChat = clickedChat;
+      // if (clickedChat && clickedChat.messages[clickedChat.messages.length - 1]._id === newMessage.latestMessage._id) {
+      //   return
+      // } else {
+      // NewMEssageHandler(newMessage.latestMessage)
+      //         if(clickedChat && newMessage._id===clickedChat._id){
+      //         let number=SeeMessage()
+      //         let details={
+      //             UserId:User._id,
+      //             userPic:User.pic,
+      //             userName:User.name,
+      //             chatId:clickedChat._id,
+      //             number:number
+      //         }
+      //         socket.emit('see Message',details)
+      //     }
+      // }
     })
   })
 

@@ -238,3 +238,24 @@ margin: 3px 5px 3px 5px;
     font-size: 16px;
   }
   .unreadMsg-chat{height: 1.3em;width: 1.3em;border-radius: 50%;display: flex;align-items: center;justify-content: center; background-color: rgba(255, 0, 93, 0.835);margin: 0 7px 0 5px;}
+  .Alert{
+    width:100%;
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    top: 6vh;
+  }
+  .AlertType{
+    padding: 4px 6px 4px 6px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+  }
+  .AlertType.message{
+    background-color: rgba(255, 255, 255, 0.517);
+  }
+  .notIcon{
+    max-height: 1.2em;
+    aspect-ratio: 1;
+    margin: 0 4px 0 1.5px;
+  }

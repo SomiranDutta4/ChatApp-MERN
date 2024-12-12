@@ -7,56 +7,33 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
 
 
   let {
-    User,setUser,LoadedChats,setLoadedChats,
-    setClicked,setChats,setShowingBot
+    User,setUser,LoadedChats,clickedChat,
+    setClicked,setChats,setShowingBot,setMessages
   }=useContext(AppContext)
   const navigate=useNavigate()
 
   const [latestMsgSender,setSender]=useState(lmSender)
   async function clickedOne(){
 
-    let foundLocal=false
+    // let foundLocal=false
 
     if(!User || !User.token){
       localStorage.removeItem('UserData')
       setUser('')
-      setLoadedChats([])
+      // setLoadedChats([])
       navigate('/Login')
       return
     }
-    
-    if(LoadedChats && LoadedChats.length>0){
-      for(let i=0;i<LoadedChats.length;i++){
-        if(LoadedChats[i]._id==_id){
-          setClicked(LoadedChats[i])
-          foundLocal=true
-        }
-      }
+    if(clickedChat._id==_id){
+      return;
     }
     setloadAll(false)
     setSingleChat(true)
     setShowingBot(false)
-    
-    if(foundLocal==true){
-      let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
-      let response=await fetch(AuthUrl)
-      if(response.status==200){
-        console.log('hey? 3')
-      }else if(response.status(401)){
-        localStorage.removeItem('UserData')
-        setUser('')
-        setLoadedChats([])
-        setChats([])
-    
-        navigate('/Login')
-      }
 
-      return
-    }else{
       setClicked('')
       setSingleChat(true)
-      //i think this is redundant
-    }
+     
 
     let url=`http://localhost:2000/chat/get/one/?_id=${_id}&chatName=${chatName}&token=${User.token}`
     let response=await fetch(url,{
@@ -65,12 +42,12 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
 
     if(response.status==401){
       setUser('')
-      setLoadedChats([])
+      // setLoadedChats([])
       setChats([])
       navigate('/Login')
     }else if(response.status==500){
       console.log('server issue')
-    }else if(response.status==200 && foundLocal===false){
+    }else if(response.status==200){
       let data=await response.json()
       var number=User.contactNumber;
       var users=[]
@@ -85,6 +62,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
       if(isGroupChat===true){
         number=users
       }
+      let latestMessageSeen=false
 
       let newChat={
         'pic':data.pic,
@@ -92,14 +70,16 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
         'isGroupChat':data.isGroupChat,
         "chatName":data.chatName,
         "_id":data._id,
-        "messages":data.messages,
+        // "messages":data.messages,
         'users':data.users,
         'groupAdmins':data.groupAdmins,
-        'createdBy':data.createdBy
+        'createdBy':data.createdBy,
+        'latestMessageSeen':latestMessageSeen
       }
+      setMessages(data.messages);
       let Chats=LoadedChats
       Chats.push(newChat)
-      setLoadedChats(Chats)
+      // setLoadedChats(Chats)
       setloadAll(false)
       setClicked(newChat)
       setSingleChat(true)
@@ -167,7 +147,7 @@ const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmS
             <span className='sentAt LMdetails'>
               {timePassed}
             </span>
-            {unreadMsg>0 &&
+            {unreadMsg===true &&
               <div className='unreadMsg-chat'></div>
             }
             </div>

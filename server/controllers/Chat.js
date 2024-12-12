@@ -13,23 +13,14 @@ module.exports.fetchAllChats = async function(req, res) {
         })
         .populate('groupAdmins','-password')
         .populate('createdBy','-password')
-        .populate('users', '-password')
+        .populate('users', '-password')   
         .populate({
             path: 'latestMessage',
             populate: {
                 path: 'sender',
                 select: 'name pic contactNumber'
-            }
+            },
         });
-
-        for (let chat of chats) {
-            let unseenMsg = await Message.countDocuments({
-                chat: chat._id,
-                readBy: { $nin: [req.user._id] }
-            });
-            chat.unseenMsg = unseenMsg;
-        }
-
         if (chats.length === 0) {
             return res.status(200).json({ chats: [], message: 'not chatted yet' });
         }
@@ -62,7 +53,7 @@ module.exports.ClickedChat=async function(req,res){
     try {
         const messages=await Message.find({chat:chat._id})
         .populate('sender','-password')
-        .populate('readBy','-password')
+        // .populate('readBy','-password')
         chat.messages=messages
     } catch (error) {
         chat.messages=[]
@@ -77,7 +68,6 @@ module.exports.ClickedChat=async function(req,res){
 }
 
 module.exports.createNew=async function(req,res){
-    // console.log()
     try {
         if(req.body._id==req.user._id){
             let chat=await Chat.findOne({
@@ -98,7 +88,6 @@ module.exports.createNew=async function(req,res){
             if(chat){
                 let messages=await Message.find({chat:chat._id})
     
-                console.log('1')
                 return res.status(200).json({
                 users:req.body.users,
                 messages:messages,
@@ -109,7 +98,6 @@ module.exports.createNew=async function(req,res){
                 _id:chat._id
                 })   
             }else{
-                console.log('2')
     
                 return res.status(200).json({
                     users:req.body.users,
@@ -165,7 +153,6 @@ module.exports.createNew=async function(req,res){
 
 
 module.exports.createGroup=async function(req,res){
-    console.log(req.body)
     let newChatid=new mongoose.Types.ObjectId()
     let users=[req.user._id]
     for(let i=0;i<req.body.selectedMembers.length;i++){
@@ -191,7 +178,6 @@ module.exports.createGroup=async function(req,res){
             groupAdmins:Admin,
             createdAt:new Date()
         })
-        console.log('group cre:',newGroup)
     } catch (error) {
         console.log(error)
     }

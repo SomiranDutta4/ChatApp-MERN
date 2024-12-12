@@ -1,4 +1,4 @@
-import React,{useState,useEffect, useContext} from 'react'
+import React,{useState,useEffect, useContext,} from 'react'
 import AllChats from './AllChats/AllChats'
 import './allChats.css'
 import ChatSideWindow from './AllChats/SideWindow'
@@ -6,10 +6,12 @@ import { AppContext } from './Context/ContextProvider'
 import Group from './groupChat/Group'
 import SettingsPage from './Profile/Settings'
 import Onechat from './OneChat/Onechat'
-import Socket from './Socket/Socket'
 import ChatBot from './OneChat/ChatBot'
+import Socket from './Socket/Socket'
+import { faBell } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 const Chatpage = () => {
-  const {isSending,AccountPage,User,showingBot}=useContext(AppContext)
+  const {isSending,AccountPage,User,showingBot,socket,Alert,setAlert}=useContext(AppContext)
   const [loadAll,setloadAll]=useState(true)
   const [isSingleChat,setSingleChat]=useState(false)
   const [isAddingGroup,setAddingGroup]=useState(false)
@@ -31,7 +33,17 @@ const Chatpage = () => {
 useEffect(()=>{
   
   },[isSending])
-
+useEffect(()=>{
+  if(socket){
+  socket.on('group added', (user) => {
+    if(user==User._id){
+      setAlert({type:'info',message:'You were added to a new group, refresh to see'})
+      // setTimeout(()=>{
+      //   setAlert(null)
+      // },3000)
+    }
+  })}
+})
 
   if(windowWidth<=850){
     return (
@@ -44,7 +56,9 @@ useEffect(()=>{
         {isAddingGroup===true && <Group setloadAll={setloadAll } setSingleChat={setSingleChat} setAddingGroup={setAddingGroup}></Group>}
         {AccountPage===true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>}
         {User && <Socket ></Socket>}
+        {Alert&&<div className='Alert'><span className={`AlertType ${Alert[0]}`} ><FontAwesomeIcon className='notIcon' icon={faBell}></FontAwesomeIcon>{Alert[1]}</span></div>}
         {/* {isSearch && !loadAll && <SearchPage isSearch={isSearch} loadAll={loadAll} setsearch={setsearch} setloadAll={setloadAll}/>} */}
+
       </div>
     )
   }else{
@@ -58,6 +72,7 @@ useEffect(()=>{
         {isAddingGroup===true && <Group setloadAll={setloadAll } setSingleChat={setSingleChat} setAddingGroup={setAddingGroup}></Group>}
         {AccountPage===true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>}
         {User && <Socket></Socket>}
+        {Alert&&<div className='Alert'><span className={`AlertType ${Alert[0]}`}>{Alert[1]}<FontAwesomeIcon className='notIcon' icon={faBell}></FontAwesomeIcon></span></div>}
         {/* {isSearch && !loadAll && <SearchPage isSearch={isSearch} loadAll={loadAll} setsearch={setsearch} setloadAll={setloadAll}/>} */}
       </div>
     )

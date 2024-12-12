@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
   let navigate=useNavigate()
-  let {AllChats,User,setChats,setUser}=useContext(AppContext)
+  let {AllChats,User,setChats,setUser,socket}=useContext(AppContext)
     const [groupName, setGroupName] = useState('');
     const [selectedMembers, setSelectedMembers] = useState([]);
     const [created,setCreated]=useState(false)
@@ -93,9 +93,6 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
           selectedMembers:selectedMembers
         })
       })
-      let data=response.status
-      console.log(response)
-      console.log(data)
       if(response.status===500){
         console.log('why?')
       }
@@ -108,7 +105,9 @@ const Group = ({setloadAll,setSingleChat,setAddingGroup}) => {
         setloadAll(true)
         setSingleChat(false)
         setCreated(false)
-        console.log(data.Groupchat)
+        if(socket){
+          socket.emit('group created',selectedMembers);
+        }
         return
       }else if(response.status===500){
         errorFunc('some Error occured')

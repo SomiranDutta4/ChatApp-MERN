@@ -14,8 +14,8 @@ module.exports.sendMessage=async function(req,res){
 
     try {
         let chat= await Chat.findOne({_id:req.body.chatId,users:req.user._id})
-        .populate('users','-password')
-        .populate('messages.sender','-password')
+        // .populate('users','-password')
+        // .populate('messages.sender','-password')
         if(chat){
             chat.latestMessage=newMessageId
             await chat.save()
@@ -38,7 +38,6 @@ module.exports.sendMessage=async function(req,res){
                 pastUsers:[],
                 messages:[],
                 latestMessage:newMessageId
-                
             })
 
             await Message.create({
@@ -59,7 +58,7 @@ module.exports.sendMessage=async function(req,res){
         }
         try {
             let chatToReturn=await Chat.findById(req.body.chatId)
-        .populate('users')
+        // .populate('users')
         // .select('latestMessage')
         .populate({
             path:'latestMessage',
@@ -68,13 +67,13 @@ module.exports.sendMessage=async function(req,res){
                 select:'-password'
             }
         })
-        .populate({
-            path:'latestMessage',
-            populate:{
-                path:'readBy',
-                select:'-password'
-            }
-        })
+        // .populate({
+        //     path:'latestMessage',
+        //     populate:{
+        //         path:'readBy',
+        //         select:'-password'
+        //     }
+        // })
        
             if(isCreatedNew==false){
                 return res.status(200).json({message:'sent message',chat:chatToReturn})

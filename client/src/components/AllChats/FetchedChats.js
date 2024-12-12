@@ -64,8 +64,8 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
           return
         }else if(response.status===200){
           let newchats=await response.json()
-          let chatsToSave=newchats.chats
-          chatsToSave.forEach(chat => {
+          newchats=newchats.chats
+          newchats.forEach(chat => {
             if(chat.chatName==='randomXYZchatApp.123456789@#$%^&*()_+'){
               
               if(chat.users[0]._id==User._id && chat.users.length!=1){
@@ -74,16 +74,18 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
                 chat.chatName=chat.users[0].name
               }
             }
+            if(chat.latestMessage.readBy&& !chat.latestMessage.readBy.includes(User._id)){
+              chat.unseenMsg=true;
+            }
           });
 
-          chatsToSave.sort((a, b) => {
+          newchats.sort((a, b) => {
             let dateA = new Date(a.latestMessage.createdAt);
             let dateB = new Date(b.latestMessage.createdAt);
             return dateB - dateA; // Descending order (most recent first)
           });
-
-          setChats(chatsToSave)
-          setLocalFound(chatsToSave)
+          setChats(newchats)
+          setLocalFound(newchats)
         }else{
           // setLoading(false)
           return

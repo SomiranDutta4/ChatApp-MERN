@@ -9,9 +9,10 @@ import ChatDetails from './ChatDetails'
 
 const Onechat = ({setSingleChat,setloadAll}) => {
     const [showChatDetails,setSHowChat]=useState(false)
+    const [lastMessageSeen,setLastMessageSeen]=useState(false);
     const {
-        clickedChat,setClicked,User,setUser,setLoading,socket,NewMEssageHandler,
-        LoadedChats,AllChats,setChats,setSending,SeeMessage,showingBot
+        clickedChat,setClicked,User,setUser,setLoading,socket,NewMEssageHandler,messages
+        ,AllChats,setChats,setSending,SeeMessage,showingBot,messageEnd
     }=useContext(AppContext)
     const navigate=useNavigate()
    
@@ -22,9 +23,10 @@ const Onechat = ({setSingleChat,setloadAll}) => {
         // setTyping(true)
     }
     const inputMessage=useRef(null)
-    const messageEnd=useRef(null)
+    // const messageEnd=useRef(null)
 
     const sendMessage=async()=>{
+        setLastMessageSeen(false);
         let newMsgessage=message
         // let isLocal=false
 
@@ -71,27 +73,29 @@ const Onechat = ({setSingleChat,setloadAll}) => {
     })
     let data=await response.json();
 
-    let newChat={
-        pic:clickedChat.pic,
-        _id:clickedChat._id,
-        chatName:clickedChat.chatName,
-        isGroupChat:clickedChat.isGroupChat,
-        users:clickedChat.users,
-        latestMessage:data.chat.latestMessage
-    }
     let newMessage=data.chat
     try {
-        socket.emit("new message", data.chat)
-        console.log(data.chat);       
+        socket.emit("new message", newMessage)
     } catch (error) {
         console.log(error)
     }
 
     if(response.status==300){
+        let newChat={
+            pic:clickedChat.pic,
+            _id:clickedChat._id,
+            chatName:clickedChat.chatName,
+            isGroupChat:clickedChat.isGroupChat,
+            users:clickedChat.users,
+            latestMessage:data.chat.latestMessage
+        }
         let AllChatsFetched=AllChats
         AllChatsFetched.push(newChat)
         setChats(AllChatsFetched)
-    }
+    }else if(response.status===401){
+        localStorage.removeItem('UserData')
+        navigate('/Login')
+        }
     NewMEssageHandler(newMessage.latestMessage)
     setSending(false)
     if(messageEnd.current){
@@ -122,16 +126,59 @@ const Onechat = ({setSingleChat,setloadAll}) => {
     if(messageEnd.current){
         messageEnd.current.scrollIntoView()
     }
-    SeeMessage()
     try {
         socket.emit('join chat',clickedChat._id)   
     } catch (error) {console.log(error)}}
   },[clickedChat])
 
 useEffect(()=>{
-  },[])
+    if(inputMessage.current){
+        inputMessage.current.focus()
+    }
+  },[messages])
+
+useEffect(() => {
+    if (!socket) {
+      return
+    }
+    socket.on('seen messages', (details) => {
+        if(clickedChat._id===details.chatId&&!clickedChat.isGroupChat){
+            setLastMessageSeen(true);
+            if(messageEnd.current){
+                messageEnd.current.scrollIntoView()
+            }
+        }
+    })
+    socket.on("message recieved",()=>{
+        if(messageEnd.current){
+            messageEnd.current.scrollIntoView()
+        }
+    })
+  })
+
+// useEffect(()=>{
+//     if(clickedChat){
+//     if(clickedChat.messages[clickedChat.messages.length-1].readBy.length==clickedChat.users.length){
+//         setLastMessageSeen(true);
+//     }else if(clickedChat.lastMessageSeen){
+//         setLastMessageSeen(true);
+//     }
+//     console.log(clickedChat)
+//     SeeMessage()
+// }
+// },[clickedChat])
+
 useEffect(()=>{
-},[clickedChat])
+    if(messages.length>0&&clickedChat){
+    if(messages[messages.length-1].readBy.length==clickedChat.users.length){
+        setLastMessageSeen(true);
+    }else if(clickedChat.lastMessageSeen){
+        setLastMessageSeen(true);
+    }
+    SeeMessage()
+}
+},[messages])
+
 
 if(showChatDetails===false && showingBot===false){
     return (
@@ -164,13 +211,16 @@ if(showChatDetails===false && showingBot===false){
          </div>
     
          <div className='chatDisplayContainer'>
-            {clickedChat.messages && clickedChat.messages.length>0 &&
-                clickedChat.messages.map((element) => {
+            {messages && messages.length>0 &&
+                messages.map((element) => {
                     return <OneMessage ShMessage={element} isDeleted={element?.isDeleted} key={element._id} message={element.content} messageId={element._id} chatId={clickedChat._id} 
-                    userToken={User.token} status={element.status?element.status:'sent'} sentBy={clickedChat.isGroupChat===true?element.sender.name:null} readBy={element.readBy}
+                    userToken={User.token} status={element.status?element.status:'sent'} sentBy={clickedChat.isGroupChat===true?element.sender.name:null}
                     sender={User._id===element.sender._id?'byMe':User._id===element.sender?'byMe':'byThem'} senderId={element.sender._id}
                     />
                 })
+            }
+            {lastMessageSeen&&messages[messages.length-1].sender._id===User._id&&
+            <div style={{textAlign:'end',margin:'0 10px 0 0',fontSize:'85%'}}>seen</div>
             }
             <div ref={messageEnd}></div>
           
