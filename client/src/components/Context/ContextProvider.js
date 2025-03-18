@@ -16,6 +16,7 @@ const ContextProvider = ({ children }) => {
     UserD = ''
   }
 
+  const URL = ENDPOINT;
   const [AllChats, setChats] = useState([])
   const [LoadedChats, setLoadedChats] = useState([])
   const [clickedChat, setClicked] = useState('')
@@ -28,51 +29,57 @@ const ContextProvider = ({ children }) => {
   const [showingBot, setShowingBot] = useState(false)
   const [messageLoading, setMsgLoadig] = useState(false)
   const [messages, setMessages] = useState([]);
-  const [Alert, setAlert] = useState(null);
-  const messageEnd=useRef(null);
+  const messageEnd = useRef(null);
 
   const NewMEssageHandler = (Message, fromMe) => {
     if (clickedChat && messages.length > 0 && messages[messages.length - 1]._id === Message._id) {
-      return
+      return;
     }
-    if (clickedChat&& Message.chat === clickedChat._id) {
-      let newMessages = messages
-      if (clickedChat && messages.length > 0 && messages[messages.length - 1].status && messages[messages.length - 1].status === "sending") {
-        newMessages[newMessages.length - 1] = Message
-        setMessages([newMessages]);
-      } else {
-        //   newClicked.messages.push(Message)
-        setMessages([...messages, Message]);
-      }
-    }
-    if(messageEnd.current){
-      messageEnd.current.scrollIntoView()
-  }
-    //   setClicked(newClicked);
 
-    //   let allLoaded=LoadedChats
-    // let index = -1
-    let arrangedChats = AllChats
-    //   let unseenCount=0
-    for (let i = 0; i < AllChats.length; i++) {
-      if (AllChats[i]._id === Message.chat) {
-        if(!fromMe){
-          arrangedChats[i].latestMessage=Message;
-          arrangedChats[i].unseenMsg=true;
+    // Update Messages
+    if (clickedChat && Message.chat === clickedChat._id) {
+      setMessages((prevMessages) => {
+        let newMessages = [...prevMessages];
+
+        if (newMessages.length > 0 && newMessages[newMessages.length - 1]?.status === "sending") {
+          newMessages[newMessages.length - 1] = Message;
+        } else {
+          newMessages.push(Message);
         }
-        arrangedChats[i].latestMessage = Message
-        let firstChat = arrangedChats.splice(i, 1)[0]
-        arrangedChats.unshift(firstChat)
-      }
+
+        return newMessages;
+      });
     }
-    setChats(arrangedChats)
-  }
+
+    // Update Chats
+    setChats((prevChats) => {
+      let arrangedChats = [...prevChats];
+
+      for (let i = 0; i < arrangedChats.length; i++) {
+        if (arrangedChats[i]._id === Message.chat) {
+          let updatedChat = { ...arrangedChats[i], latestMessage: Message };
+
+          if (!fromMe) {
+            updatedChat.unseenMsg = true; // Ensure unseen message flag updates correctly
+          }
+
+          arrangedChats.splice(i, 1);
+          arrangedChats.unshift(updatedChat);
+          break; // Exit loop after updating the relevant chat
+        }
+      }
+
+      return arrangedChats; // Ensure new reference for state update
+    });
+  };
+
   let SeeMessage = async () => {
-    let arrangedChats=AllChats;
+    let arrangedChats = AllChats;
     for (let i = 0; i < AllChats.length; i++) {
       if (AllChats[i]._id === clickedChat._id) {
-        arrangedChats[i].unseenMsg=false;  
-        setChats(arrangedChats);      
+        arrangedChats[i].unseenMsg = false;
+        setChats(arrangedChats);
+        break;
       }
     }
     setSending(true)
@@ -101,8 +108,7 @@ const ContextProvider = ({ children }) => {
       socket.emit('see Message', details)
       return data.number
     } catch (error) {
-      console.log(error)
-      return 0
+      return 0;
     }
   }
 
@@ -117,8 +123,8 @@ const ContextProvider = ({ children }) => {
 
   return (
     <AppContext.Provider value={{
-      AllChats, setChats, isLoading, setLoading, LocalFound, setLocalFound, NewMEssageHandler, messageLoading, setMsgLoadig,
-      LoadedChats, setLoadedChats, User, setUser, isSending, setSending, SeeMessage, showingBot, setShowingBot,messageEnd,Alert,setAlert,
+      AllChats, setChats, isLoading, setLoading, LocalFound, setLocalFound, NewMEssageHandler, messageLoading, setMsgLoadig, URL,
+      LoadedChats, setLoadedChats, User, setUser, isSending, setSending, SeeMessage, showingBot, setShowingBot, messageEnd,
       clickedChat, setClicked, AccountPage, setAccountPage, socket, socketConnected, setSocketConnected, messages, setMessages
     }}>
       {children}

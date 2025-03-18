@@ -46,19 +46,17 @@ const server = app.listen(PORT, function (err) {
 })
 //------------------------production----------------------------------
 
+if(process.env.NODE_ENV=='production'){
+  console.log('server is up!')
+  app.use(express.static(path.join(__dirname,'../client','build')));
 
-// if(process.env.NODE_ENV==='production'){
-//   const new2=path.join(__dirname,'../client','build');
-//   console.log(new2);
-//   app.use(express.static(path.join(__dirname,'../client','build')));
-
-//   app.get('*',(req,res)=>{
-//     res.sendFile(path.resolve('../client','build','index.html'));
-//   })
-//   app.get('/',(req,res)=>{
-//     res.send('API is working perfectly')
-//   })
-// }
+  app.get('*',(req,res)=>{
+    res.sendFile(path.resolve('../client','build','index.html'));
+  })
+  app.get('/',(req,res)=>{
+    res.send('API is working perfectly')
+  })
+}
 
 
 
@@ -148,7 +146,7 @@ io.on('connection', (socket) => {
   })
   socket.on('Add member', (groupDetails) => {
     try {
-      socket.in(groupDetails.user._id).emit('added member')
+      socket.in(groupDetails.user._id).emit('added member');
     } catch (error) {}
   })
   socket.on('group created', (selectedMembers) => {

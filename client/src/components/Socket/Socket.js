@@ -1,51 +1,61 @@
 import React, { useEffect, useContext } from 'react'
 import { AppContext } from '../Context/ContextProvider'
+import { toast } from 'react-toastify';
+
 
 const Socket = () => {
-  const { User, clickedChat, socket, LoadedChats, AllChats, setAlert,
+  const { User, clickedChat, socket, LoadedChats,
     NewMEssageHandler, setLoadedChats, setClicked, setChats } = useContext(AppContext)
 
-
   useEffect(() => {
     if (!socket) {
       return
     }
-    socket.on("message recieved", (newMessage) => {
-      if (clickedChat && clickedChat._id === newMessage.chat) {
-        NewMEssageHandler(newMessage, false);
-        setAlert(null);
-      } else {
-        setAlert(['message', `${newMessage.sender.name}: ${newMessage.content}`])
-        setTimeout(() => {
-          setAlert(null)
-        }, 1800)
+    const messageHandler = (newMessage) => {
+      NewMEssageHandler(newMessage, false);
+
+      if (!clickedChat || clickedChat._id !== newMessage.chat) {
+        toast(`${newMessage.sender.name}: ${newMessage.content}`, {
+          position: "top-center",
+          autoClose: 3000,
+          hideProgressBar: true,
+          closeOnClick: false,
+          pauseOnHover: true,
+          draggable: false,
+          progress: undefined,
+          theme: "light",
+        });
       }
-    })
+    };
+    socket.on("message recieved", messageHandler);
+    return () => {
+      socket.off("message recieved", messageHandler);
+    };
   })
 
+
   useEffect(() => {
-    if (!socket) {
-      return
-    }
-    socket.on('added member', async (groupDetails) => {
-      let newChats = AllChats
-      let newChatUrl = `http:localhost:2000/chat/new/fetchNew/?token=${User.token}&_id=${groupDetails.chatId}`
-      let response = await fetch(newChatUrl)
-      let data = await response.json()
-      newChats.unshift(data.chat)
-      setChats(newChats)
-    })
-  })
-  useEffect(() => {
-    if (!socket) {
-      return
-    }
-    socket.on('removed member', groupDetails => {
-      let newChats = AllChats
-      newChats = newChats.filter(chat => chat._id !== groupDetails.chatId)
-      setChats(newChats)
-    })
-  })
+    if (!socket) return;
+
+    const handleAddedMember = async () => {
+      try {
+        if (!clickedChat || !clickedChat._id) {
+          window.location.reload(); // This will force a full page reload
+        } else {
+          toast('You were added to a new group, reload to view');
+        }
+      } catch (error) {
+        console.error("Error fetching new chat:", error);
+      }
+    };
+
+    socket.on('added member', handleAddedMember);
+
+    return () => {
+      socket.off('added member', handleAddedMember);
+    };
+  }, [socket, User.token, setChats]);
+
 
   useEffect(() => {
     if (!socket) {

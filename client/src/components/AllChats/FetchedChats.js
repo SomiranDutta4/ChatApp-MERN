@@ -8,7 +8,7 @@ import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
 const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat}) => {
  
-  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound,setShowingBot,showingBot,setClicked}=useContext(AppContext)
+  const {User,setUser,AllChats,setChats,setLoading,isLoading,setLoadedChats,setLocalFound,setShowingBot,showingBot,setClicked,URL}=useContext(AppContext)
   const navigate=useNavigate()
 
   let getChats=async()=>{
@@ -22,8 +22,8 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
       return
     }
 
-    let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
-    let url=`http://localhost:2000/chat/get/all/?_id=${User._id}&token=${User.token}`
+    let AuthUrl=URL+`/user/auth/?token=${User.token}`
+    let url=URL+`/chat/get/all/?_id=${User._id}&token=${User.token}`
 
     let isFoundLocal=false
 
@@ -67,10 +67,11 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
           newchats=newchats.chats
           newchats.forEach(chat => {
             if(chat.chatName==='randomXYZchatApp.123456789@#$%^&*()_+'){
-              
               if(chat.users[0]._id==User._id && chat.users.length!=1){
+                chat.pic=chat.users[1].pic
                 chat.chatName=chat.users[1].name
               }else{
+                chat.pic=chat.users[0].pic
                 chat.chatName=chat.users[0].name
               }
             }
@@ -82,7 +83,7 @@ const FetchedChats = ({isAdding,isSearch,setloadAll,isSingleChat,setSingleChat})
           newchats.sort((a, b) => {
             let dateA = new Date(a.latestMessage.createdAt);
             let dateB = new Date(b.latestMessage.createdAt);
-            return dateB - dateA; // Descending order (most recent first)
+            return dateB - dateA; 
           });
           setChats(newchats)
           setLocalFound(newchats)

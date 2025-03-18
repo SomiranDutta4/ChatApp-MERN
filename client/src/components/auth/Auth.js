@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../Context/ContextProvider'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
+import { Flip, toast, ToastContainer } from 'react-toastify';
+import image from '../../assets/images/defIcon.jpg';
 
 const Login = ({ }) => {
 
-  const { setUser } = useContext(AppContext)
+  const { setUser,URL } = useContext(AppContext)
   let navigate = useNavigate()
 
   const [pass, setPass] = useState('hide')
@@ -17,21 +19,6 @@ const Login = ({ }) => {
   const [number, setNumber] = useState('')
   const [doing, setDoing] = useState('login')
   const [name, setName] = useState('')
-  // const [email,setMail]=useState('')
-  const [AuthError, setError] = useState({
-    message: '',
-    type: ''
-  })
-
-  let setErrorfunc = (message, type) => {
-    setError({
-      message: message,
-      type: type
-    })
-    setTimeout(() => {
-      setError('')
-    }, 3000);
-  }
 
   let signupBtnClicked = () => {
     setPassWord('')
@@ -60,9 +47,7 @@ const Login = ({ }) => {
   const typeNumber = (event) => {
     setNumber(event.target.value.trim())
   }
-  // const typeEmail=(event)=>{
-  //   setMail(event.target.value)
-  // }
+
   const typePassword = (event) => {
     setPassWord(event.target.value)
     if (doing == 'login') {
@@ -79,14 +64,21 @@ const Login = ({ }) => {
 
   async function login() {
     if (!Password.trim()) {
-      setErrorfunc('password cannot be empty', 'error')
+      toast.error('password cannot be empty');
+      // setErrorfunc('password cannot be empty', 'error')
       return
     }
     //200,401,500,400-no user
-    let Loginurl = `http://localhost:2000/user/Login/?email=${number}&password=${Password}`
+    let Loginurl = URL+`/user/Login/?email=${number}&password=${Password}`
     try {
       let response = await fetch(Loginurl, {
-        method: 'GET'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json', // Specify content type JSON
+        },
+        body: JSON.stringify({
+          password: Password
+        })
       })
       if (response.status === 200) {
         let data = await response.json()
@@ -102,19 +94,17 @@ const Login = ({ }) => {
         setUser(Userdata)
         navigate('/Chat')
       } else if (response.status === 401) {
-        setErrorfunc('Entered password was incorrect', 'error')
+        toast.error('Entered password was incorrect')
       } else if (response.status === 400) {
-        setErrorfunc('No Account exist, Sign up first', 'error')
+        toast.error('No Account exist, Sign up first')
       } else if (response.status === 440) {
-        setErrorfunc('The entered email must be valid', 'error')
+        toast.error('The entered email must be valid')
       } else {
-        let data = await response.json()
-        console.log(data)
-        setErrorfunc('There was an error,We are fixing it', 'error')
+        toast.error('There was an error,We are fixing it')
       }
 
     } catch (error) {
-      setErrorfunc('Could not Sign In..., maybe check your internet', 'error')
+      toast.error('Could not Sign In..., maybe check your internet')
     }
   }
 
@@ -122,46 +112,45 @@ const Login = ({ }) => {
   async function SignUp() {
     //200,401,500
     if (confirmPassword !== Password) {
-      setErrorfunc('The passwords did not match', 'error')
+      toast.error('The passwords did not match');
       return
     } else if (Password.trim().length < 6) {
-      setErrorfunc('The password should contain atleast 6 characters', 'error')
+      toast.error('The password should contain atleast 6 characters')
       return
     }
-    let SignUpurl = 'http://localhost:2000/user/Signup'
+    let SignUpurl = URL+'/user/Signup'
     try {
       let response = await fetch(SignUpurl, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json', // Specify content type JSON
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: number,
           password: Password,
           name: name,
-          // email:email
+          pic:image
         })
       })
-      let verifyUrl = `http://localhost:2000/user/send/mail/?status=${response.status}&email=${number}`
+      let verifyUrl = URL+`/user/send/mail/?status=${response.status}&email=${number}`
       fetch(verifyUrl, {
         method: 'PATCH',
       })
       if (response.status === 200) {
-        setErrorfunc('Successfully signed up', 'success')
+        toast.success('Successfully signed up')
         setNumber('')
         setPassWord('')
         setDoing('login')
       } else if (response.status === 500) {
-        setErrorfunc('Something went wrong, we are trying to fix it', 'error')
+        toast.error('Something went wrong, we are trying to fix it')
       } else if (response.status === 440) {
-        setErrorfunc('Email must be valid and the password must be atleast 6 characters long', 'error')
+        toast.error('Email must be valid and the password must be atleast 6 characters long')
       } else {
-        setErrorfunc('Account already exist with the entered number', 'error')
+        toast.error('Account already exist with the entered number')
       }
     } catch (error) {
-      setErrorfunc('Could not Sign Up..., maybe check your internet', 'error')
+      toast.error('Could not Sign Up..., maybe check your internet');
     }
-
   }
 
 
@@ -186,11 +175,20 @@ const Login = ({ }) => {
   return (
 
     <div className="wrapper">
-
-      {AuthError.message != '' &&
-        <div className={`AuthError-Container ${AuthError.type}`}>
-          <p>{AuthError.message}</p>
-        </div>}
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        limit={3}
+        hideProgressBar
+        newestOnTop={false}
+        closeOnClick={false}
+        rtl={false}
+        pauseOnFocusLoss
+        draggable={false}
+        pauseOnHover={false}
+        theme="light"
+        transition={Flip}
+      />
 
       <div className="title-text">
         <div id={doing} className="title login">Login Form</div>
@@ -206,9 +204,7 @@ const Login = ({ }) => {
         </div>
         <div className="form-inner">
           <div id={doing} className="login custom-form">
-            {/* <div className="field">
-              <input onChange={typeEmail} value={email} className='emailInput' type="number" placeholder="Email" required/>
-            </div> */}
+
             <div className="field">
               <input onChange={typeNumber} value={number} className='emailInput' type='email' placeholder="Email" required />
             </div>
@@ -223,7 +219,6 @@ const Login = ({ }) => {
                 }
               </p>
             </div>
-            {/* <a className='toggleAnchor' >{pass=='show'?'hide':'show'}  icon="fa-solid fa-eye<FontAwesomeIcon icon="fas fa-eye-slash" />" password</a> */}
             <div className="pass-link"><a href="#">Forgot password?</a></div>
             <div className="field btn">
               <div className="btn-layer"></div>
@@ -235,9 +230,6 @@ const Login = ({ }) => {
             <div className="field">
               <input onChange={typeNumber} value={number} className='emailInput' type="email" placeholder="Email" required />
             </div>
-            {/* <div className="field">
-              <input onChange={typeEmail} value={email} className='emailInput' type="number" placeholder="Email" required/>
-            </div> */}
             <div className="field">
               <input onChange={typeName} value={name} placeholder="Name" className='emailInput' required />
             </div>

@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../Context/ContextProvider'
 
 const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
-  const {setClicked}=useContext(AppContext)
+  const {setClicked,setMessages,URL}=useContext(AppContext)
   let navigate=useNavigate()
   let UserData=localStorage.getItem('UserData')
   try {
@@ -14,7 +14,7 @@ const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
     navigate('/Chat')
   }
 
-  let url=`http://localhost:2000/chat/get/new/?token=${UserData.token}`
+  let url=URL+`/chat/get/new/?token=${UserData.token}`
   let sendNew=async(user)=>{
     try {
       let result=await fetch(url,{
@@ -31,10 +31,10 @@ const GlobalUsers = ({foundUser,setSingleChat,setloadAll}) => {
         })
       })
     let data=await result.json()
+    setMessages(data.messages)
     setClicked(data)
     setSingleChat(true)
     setloadAll(false)
-      console.log('data:',data)
     } catch (error) {
       console.log(error)
     }

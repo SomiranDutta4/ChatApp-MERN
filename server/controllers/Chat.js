@@ -118,9 +118,7 @@ module.exports.createNew=async function(req,res){
             }})
     
             if(chat){
-    
                 let messages=await Message.find({chat:chat._id})
-                console.log('3')
                 return res.status(200).json({
                     users:req.body.users,
                     messages:messages,
@@ -131,7 +129,6 @@ module.exports.createNew=async function(req,res){
                     _id:chat._id
                 })
             }
-            console.log('4')
     
             return res.status(200).json({
                 users:req.body.users,

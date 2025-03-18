@@ -37,6 +37,7 @@ module.exports.signUp = async function (req, res) {
             name: req.body.name,
             contactNumber: req.body.email,
             password: newpassword,
+            pic:req.body.pic,
             isAdmin: isAdmin
         })
         // .then(done => {
@@ -104,6 +105,10 @@ module.exports.signIn = function (req, res) {
     if (!errors.isEmpty()) { return res.status(440).json({ message: 'validation failed' }) }
 
     let password = req.query.password
+    if(!password){
+        password=req.body.password
+    }
+    console.log(req.query,password)
     User.findOne({
         contactNumber: req.query.email
     })
@@ -113,6 +118,7 @@ module.exports.signIn = function (req, res) {
             }
             const token = tokenGenerate(foundUser._id)
             bcrypt.compare(password, foundUser.password).then(result => {
+                console.log(result)
                 if (!result) {
                     return res.status(401).json({ message: 'The entered password was wrong, try again' })
                 }
@@ -235,7 +241,16 @@ module.exports.editAcc = async function (req, res) {
         return res.status(500).json({ message: 'some error occured, we regtret our shortcomings' })
     }
 }
-
+module.exports.updatePic=async function(req,res){
+    let user=await User.findById(req.user._id);
+    if(user){
+        user.pic=req.query.url;
+        await user.save();
+        return res.status(200).json({success:true});
+    }else{
+        return res.status(400).json({message:'some error occures'})
+    }
+}
 module.exports.authenticate = function (req, res) {
     return res.status(200).json({ message: 'authenticated' })
 }

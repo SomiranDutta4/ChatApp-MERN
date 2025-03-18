@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '../Context/ContextProvider';
 
 const LocalUsers = ({setloadAll,setSingleChat}) => {
-  const { LocalFound,User,setClicked,LoadedChats,setUser} = useContext(AppContext);
+  const { LocalFound,User,setClicked,LoadedChats,setUser,URL} = useContext(AppContext);
 
 
   const ClickedALocal=async(id)=>{
@@ -11,7 +11,7 @@ const LocalUsers = ({setloadAll,setSingleChat}) => {
     console.log(messages)
 
     if(!messages || messages.length===0){
-      let url=`http://localhost:2000/chat/get/one/?_id=${id}&chatName=${newChat.chatName}&token=${User.token}`
+      let url=URL+`/chat/get/one/?_id=${id}&chatName=${newChat.chatName}&token=${User.token}`
       let response=await fetch(url)
 
       if(response.status===401){

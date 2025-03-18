@@ -8,7 +8,7 @@ const SearchPage = (
   isAdding,setAdd,setsearch,
   setFoundUser,foundUser }
 ) => {
-  const {setAccountPage,AllChats,User,setLocalFound,LocalFound}=useContext(AppContext)
+  const {setAccountPage,AllChats,User,setLocalFound,URL}=useContext(AppContext)
   const [SearchInput,setSearching]=useState('')
 
   let SearchUsers=()=>{
@@ -44,17 +44,13 @@ const SearchPage = (
       return
     }
     setsearch(true)
-    let url=`http://localhost:2000/user/search/?user=${SearchInput}&token=${User.token}`
-    let result=await fetch(url)
-    console.log('result:',result)
+    let searchURL=URL+`/user/search/?user=${SearchInput}&token=${User.token}`
+    let result=await fetch(searchURL)
     let data=await result.json()
     setFoundUser({data:data.users,searched:true})
-    console.log('found:',foundUser)
   }
 
-  // searchUtils.js
 
-// Function to perform search on AllChats based on ChatName
  const LocalSearch = (input) => {
   if (!input.trim()) {
     setLocalFound(AllChats); // Return all chats if input is empty

@@ -7,7 +7,7 @@ const SearchedUsers = (
   setSingleChat,setloadAll,setAddingGroup,
   foundUser,isSearchingGlobal,}) => {
 
-  const[foundLocal,setLocal]=useState(true)
+  const[foundLocal]=useState(true)
 
   const searchGlobal=()=>{
     if(isSearchingGlobal===false){

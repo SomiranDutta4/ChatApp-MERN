@@ -13,7 +13,7 @@ UserRouter.post('/Signup',
     body('name').notEmpty(),
     UserController.signUp)
 
-UserRouter.get('/Login/',
+UserRouter.post('/Login/',
     query('email').isEmail(),
     UserController.signIn)
 
@@ -22,5 +22,6 @@ UserRouter.get('/auth/',auth,UserController.authenticate)
 UserRouter.patch('/edit/account/',auth,UserController.editAcc)
 UserRouter.get('/search/',UserController.searchForGroup)
 UserRouter.patch('/send/mail/',UserController.sendEmail)
+UserRouter.post('/update/pic/',auth,UserController.updatePic)
 
 module.exports=UserRouter
