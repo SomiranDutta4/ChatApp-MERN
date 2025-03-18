@@ -296,6 +296,7 @@ const SettingsPage = ({ setloadAll, setSingleChat }) => {
                 const updatedUser = { ...User, pic: url };
                 setUser(updatedUser);
                 localStorage.setItem('UserData', JSON.stringify(updatedUser));
+                setShowingPics(false);
                 toast.success("Profile picture updated successfully!");
             } else {
                 toast.error("Failed to update profile picture.");
