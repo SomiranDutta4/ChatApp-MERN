@@ -12,7 +12,7 @@ import { Flip, ToastContainer, toast } from 'react-toastify';
 
 
 const Chatpage = () => {
-  const { isSending, AccountPage, User, showingBot, socket, setClicked, clickedChat, setChats } = useContext(AppContext)
+  const { isSending, AccountPage, User, showingBot, socket, setClicked, clickedChat, setChats, getChats } = useContext(AppContext)
   const [loadAll, setloadAll] = useState(true)
   const [isSingleChat, setSingleChat] = useState(false)
   const [isAddingGroup, setAddingGroup] = useState(false)
@@ -40,7 +40,8 @@ const Chatpage = () => {
 
     const handleGroupAdded = (user) => {
       if (user === User._id) {
-        toast("Added to a new group, refresh to view");
+        getChats()
+        toast("You've been added to a new group");
       }
     };
 

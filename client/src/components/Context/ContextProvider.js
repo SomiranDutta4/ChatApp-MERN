@@ -1,4 +1,5 @@
 import React, { createContext, useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client'
 // const ENDPOINT = 'http://localhost:2000'
@@ -8,6 +9,7 @@ const AppContext = createContext()
 
 
 const ContextProvider = ({ children }) => {
+    const navigate = useNavigate()
   // const navigate=useNavigate()
   let UserData = localStorage.getItem('UserData')
   let UserD
@@ -120,13 +122,97 @@ const ContextProvider = ({ children }) => {
       socket.on('connected', () => setSocketConnected(true))
     }
   })
+  let getChats = async () => {
+    if (!User || !User.token || !User._id) {
+      setUser('')
+      setChats([])
+      localStorage.removeItem('UserData')
+      navigate('/Login')
+      setLoading(false)
+      return
+    }
+
+    let AuthUrl = URL + `/user/auth/?token=${User.token}`;
+    let url = URL + `/chat/get/all/?_id=${User._id}&token=${User.token}`;
+
+    let isFoundLocal = false
+
+    if (AllChats && AllChats != '') {
+      isFoundLocal = true
+    }
+
+    if (isFoundLocal == true) {
+      try {
+        let response = await fetch(AuthUrl)
+        if (response.status == 200) {
+
+        } else if (response.status == 401) {
+          localStorage.removeItem('UserData')
+          setUser('')
+          setChats([])
+          navigate('/Login')
+        } else {
+          setLoading(true)
+        }
+        return
+      } catch (error) {
+      }
+    } else {
+      setLoading(true)
+    }
+
+    try {
+      let response = await fetch(url, {
+        method: 'GET'
+      })
+      if (response.status === 401) {
+        localStorage.removeItem('UserData')
+        setUser('')
+        setChats('')
+        navigate('/Login')
+        return
+      } else if (response.status === 200) {
+        let newchats = await response.json()
+        newchats = newchats.chats
+        newchats.forEach(chat => {
+          if (chat.chatName === 'randomXYZchatApp.123456789@#$%^&*()_+') {
+            if (chat.users[0]._id == User._id && chat.users.length != 1) {
+              chat.pic = chat.users[1].pic
+              chat.chatName = chat.users[1].name
+            } else {
+              chat.pic = chat.users[0].pic
+              chat.chatName = chat.users[0].name
+            }
+          }
+          if (chat.latestMessage.readBy && !chat.latestMessage.readBy.includes(User._id)) {
+            chat.unseenMsg = true;
+          }
+        });
+
+        newchats.sort((a, b) => {
+          let dateA = new Date(a.latestMessage.createdAt);
+          let dateB = new Date(b.latestMessage.createdAt);
+          return dateB - dateA;
+        });
+        setChats(newchats)
+        setLocalFound(newchats)
+      } else {
+        return
+      }
+      setLoading(false)
+    } catch (error) {
+      localStorage.removeItem('UserData')
+      setUser('')
+      navigate('/Login')
+    }
+  }
 
 
   return (
     <AppContext.Provider value={{
       AllChats, setChats, isLoading, setLoading, LocalFound, setLocalFound, NewMEssageHandler, messageLoading, setMsgLoadig, URL,
       LoadedChats, setLoadedChats, User, setUser, isSending, setSending, SeeMessage, showingBot, setShowingBot, messageEnd,
-      clickedChat, setClicked, AccountPage, setAccountPage, socket, socketConnected, setSocketConnected, messages, setMessages
+      clickedChat, setClicked, AccountPage, setAccountPage, socket, socketConnected, setSocketConnected, messages, setMessages,getChats
     }}>
       {children}
     </AppContext.Provider>

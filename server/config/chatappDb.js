@@ -1,6 +1,6 @@
 const mongoose=require('mongoose');
 const URI=process.env.MONGO_URI;
-console.log(process.env.dbPass)
+console.log(process.env.dbPass);
 
 mongoose.connect(URI).then(result=>{
     console.log('mongoDB set up')

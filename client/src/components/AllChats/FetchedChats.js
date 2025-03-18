@@ -8,93 +8,92 @@ import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
 const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleChat }) => {
 
-  const { User, setUser, AllChats, setChats, setLoading, isLoading, setLocalFound, setShowingBot, showingBot, setClicked, URL } = useContext(AppContext)
-  const navigate = useNavigate()
+  const { User, setUser, AllChats, setChats, setLoading, isLoading, setLocalFound, setShowingBot, showingBot, setClicked, URL, getChats } = useContext(AppContext)
 
-  let getChats = async () => {
-    if (!User || !User.token || !User._id) {
-      setUser('')
-      setChats([])
-      localStorage.removeItem('UserData')
-      navigate('/Login')
-      setLoading(false)
-      return
-    }
+  // let getChats = async () => {
+  //   if (!User || !User.token || !User._id) {
+  //     setUser('')
+  //     setChats([])
+  //     localStorage.removeItem('UserData')
+  //     navigate('/Login')
+  //     setLoading(false)
+  //     return
+  //   }
 
-    let AuthUrl = URL + `/user/auth/?token=${User.token}`;
-    let url = URL + `/chat/get/all/?_id=${User._id}&token=${User.token}`;
+  //   let AuthUrl = URL + `/user/auth/?token=${User.token}`;
+  //   let url = URL + `/chat/get/all/?_id=${User._id}&token=${User.token}`;
 
-    let isFoundLocal = false
+  //   let isFoundLocal = false
 
-    if (AllChats && AllChats != '') {
-      isFoundLocal = true
-    }
+  //   if (AllChats && AllChats != '') {
+  //     isFoundLocal = true
+  //   }
 
-    if (isFoundLocal == true) {
-      try {
-        let response = await fetch(AuthUrl)
-        if (response.status == 200) {
+  //   if (isFoundLocal == true) {
+  //     try {
+  //       let response = await fetch(AuthUrl)
+  //       if (response.status == 200) {
 
-        } else if (response.status == 401) {
-          localStorage.removeItem('UserData')
-          setUser('')
-          setChats([])
-          navigate('/Login')
-        } else {
-          setLoading(true)
-        }
-        return
-      } catch (error) {
-      }
-    } else {
-      setLoading(true)
-    }
+  //       } else if (response.status == 401) {
+  //         localStorage.removeItem('UserData')
+  //         setUser('')
+  //         setChats([])
+  //         navigate('/Login')
+  //       } else {
+  //         setLoading(true)
+  //       }
+  //       return
+  //     } catch (error) {
+  //     }
+  //   } else {
+  //     setLoading(true)
+  //   }
 
-    try {
-      let response = await fetch(url, {
-        method: 'GET'
-      })
-      if (response.status === 401) {
-        localStorage.removeItem('UserData')
-        setUser('')
-        setChats('')
-        navigate('/Login')
-        return
-      } else if (response.status === 200) {
-        let newchats = await response.json()
-        newchats = newchats.chats
-        newchats.forEach(chat => {
-          if (chat.chatName === 'randomXYZchatApp.123456789@#$%^&*()_+') {
-            if (chat.users[0]._id == User._id && chat.users.length != 1) {
-              chat.pic = chat.users[1].pic
-              chat.chatName = chat.users[1].name
-            } else {
-              chat.pic = chat.users[0].pic
-              chat.chatName = chat.users[0].name
-            }
-          }
-          if (chat.latestMessage.readBy && !chat.latestMessage.readBy.includes(User._id)) {
-            chat.unseenMsg = true;
-          }
-        });
+  //   try {
+  //     let response = await fetch(url, {
+  //       method: 'GET'
+  //     })
+  //     if (response.status === 401) {
+  //       localStorage.removeItem('UserData')
+  //       setUser('')
+  //       setChats('')
+  //       navigate('/Login')
+  //       return
+  //     } else if (response.status === 200) {
+  //       let newchats = await response.json()
+  //       newchats = newchats.chats
+  //       newchats.forEach(chat => {
+  //         if (chat.chatName === 'randomXYZchatApp.123456789@#$%^&*()_+') {
+  //           if (chat.users[0]._id == User._id && chat.users.length != 1) {
+  //             chat.pic = chat.users[1].pic
+  //             chat.chatName = chat.users[1].name
+  //           } else {
+  //             chat.pic = chat.users[0].pic
+  //             chat.chatName = chat.users[0].name
+  //           }
+  //         }
+  //         if (chat.latestMessage.readBy && !chat.latestMessage.readBy.includes(User._id)) {
+  //           chat.unseenMsg = true;
+  //         }
+  //       });
 
-        newchats.sort((a, b) => {
-          let dateA = new Date(a.latestMessage.createdAt);
-          let dateB = new Date(b.latestMessage.createdAt);
-          return dateB - dateA;
-        });
-        setChats(newchats)
-        setLocalFound(newchats)
-      } else {
-        return
-      }
-      setLoading(false)
-    } catch (error) {
-      localStorage.removeItem('UserData')
-      setUser('')
-      navigate('/Login')
-    }
-  }
+  //       newchats.sort((a, b) => {
+  //         let dateA = new Date(a.latestMessage.createdAt);
+  //         let dateB = new Date(b.latestMessage.createdAt);
+  //         return dateB - dateA;
+  //       });
+  //       setChats(newchats)
+  //       setLocalFound(newchats)
+  //     } else {
+  //       return
+  //     }
+  //     setLoading(false)
+  //   } catch (error) {
+  //     localStorage.removeItem('UserData')
+  //     setUser('')
+  //     navigate('/Login')
+  //   }
+  // }
   const loadBotAcc = () => {
     setClicked('')
     setSingleChat(false)
@@ -104,6 +103,7 @@ const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleC
 
   useEffect(() => {
     getChats()
+    setClicked('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

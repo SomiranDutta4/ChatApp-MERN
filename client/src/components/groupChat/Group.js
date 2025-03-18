@@ -155,6 +155,9 @@ const Group = ({ setloadAll, setSingleChat, setAddingGroup }) => {
   useEffect(() => {
     LoadAll();
   }, [])
+  // useEffect(()=>{
+  //   console.log(selectedMembers);
+  // },[selectedMembers])
 
   return (
     <>

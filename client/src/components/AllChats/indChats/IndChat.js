@@ -75,8 +75,8 @@ const IndChat = ({ pic, setloadAll, _id, chatName, isGroupChat, lmContent, lmSen
         'latestMessageSeen': latestMessageSeen
       }
       setMessages(data.messages);
-      let Chats = LoadedChats
-      Chats.push(newChat)
+      // let Chats = LoadedChats
+      // Chats.push(newChat)
       // setLoadedChats(Chats)
       setloadAll(false)
       setClicked(newChat)

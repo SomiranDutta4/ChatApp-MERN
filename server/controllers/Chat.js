@@ -32,6 +32,7 @@ module.exports.fetchAllChats = async function(req, res) {
         return res.status(500).json({ message: 'error in server side' });
     }
 };
+// module.exports
 
 
 
@@ -64,7 +65,6 @@ module.exports.ClickedChat=async function(req,res){
    } catch (error) {
     return res.status(500).json({message:'could not find Chat'})
    }
-     
 }
 
 module.exports.createNew=async function(req,res){
