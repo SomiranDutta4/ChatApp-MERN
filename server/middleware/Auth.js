@@ -12,7 +12,7 @@ module.exports=async function(req,res,next){
         return res.status(401).json({message:'no token present'})
     }
 
-    jwt.verify(token,'ChatApp-Secret',async function(err,decoded){
+    jwt.verify(token,process.env.ChatApp_Secret,async function(err,decoded){
         if(err){
             return res.status(401).json({error:err,message:'Login again'})
         }
