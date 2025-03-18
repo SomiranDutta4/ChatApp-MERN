@@ -46,17 +46,17 @@ const server = app.listen(PORT, function (err) {
 })
 //------------------------production----------------------------------
 
-if(process.env.NODE_ENV=='production'){
-  console.log('server is up!')
-  app.use(express.static(path.join(__dirname,'../client','build')));
+// if(process.env.NODE_ENV=='production'){
+//   console.log('server is up!')
+//   app.use(express.static(path.join(__dirname,'../client','build')));
 
-  app.get('*',(req,res)=>{
-    res.sendFile(path.resolve('../client','build','index.html'));
-  })
-  app.get('/',(req,res)=>{
-    res.send('API is working perfectly')
-  })
-}
+//   app.get('*',(req,res)=>{
+//     res.sendFile(path.resolve('../client','build','index.html'));
+//   })
+//   app.get('/',(req,res)=>{
+//     res.send('API is working perfectly')
+//   })
+// }
 
 
 
