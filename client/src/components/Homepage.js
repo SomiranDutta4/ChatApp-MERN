@@ -1,7 +1,15 @@
-import React, { useRef } from 'react'
-import { Link } from 'react-router-dom';
-import axios from 'axios';
+import React, { useContext, useEffect, useRef } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
+import { AppContext } from './Context/ContextProvider';
 const Homepage = ({ }) => {
+  const { User } = useContext(AppContext)
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (User) {
+      navigate('/Login');
+    }
+  }, [])
+
 
   return (
     <>

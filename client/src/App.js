@@ -11,12 +11,6 @@ import { ContextProvider } from './components/Context/ContextProvider';
 
 function App() {
 
-
-  // try {
-  // localStorage.getItem('web-token:chat')
-  // } catch (error) {
-
-  // }
   return (
 
     <div className="App">
