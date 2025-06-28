@@ -1,11 +1,12 @@
 # 💬 ChatNgine — Full-Stack MERN Chat App
 
-A powerful real-time chat application with group messaging, media sharing, video/audio calls, online status, typing indicators, and dark mode support — built with the MERN stack.
+A powerful real-time chat application with group messaging, media sharing, video/audio calls, online status, typing indicators, and more — built with the MERN stack.
 
 ![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
 ![Node.js](https://img.shields.io/badge/Node.js-Express-brightgreen?style=for-the-badge&logo=node.js)
 ![WebSocket](https://img.shields.io/badge/WebSocket-Socket.IO-black?style=for-the-badge&logo=socket.io)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Database-green?style=for-the-badge&logo=mongodb)
+![WebRTC](https://img.shields.io/badge/WebRTC-RealTime-red?style=for-the-badge&logo=webrtc)
 
 ---
 
@@ -21,11 +22,12 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 
 - **Authentication** with JWT and Firebase Google Login
 - **One-on-One & Group Chats** with real-time updates
+- **Group Chat Admin Features**: Add member, kick member, promote/demote admin
+- **OTP Verification** using **Nodemailer**
 - **Media Sharing** (images/videos)
 - **Voice & Video Calls** via WebRTC
 - **Online/Offline Status** indicators
 - **Typing Indicators** and delivery/seen status
-- **Dark/Light Mode** toggle
 - **Notifications** with React-Toastify
 - **Smart Bookmarks** using Redux + MongoDB
 - **Responsive Design** for both desktop & mobile
@@ -39,11 +41,13 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 - Register/login with JWT or Google
 - Store user profile (name, email, avatar)
 - Track online/offline status via Socket.IO
+- OTP-based verification via email
 
 ### 💬 Chat Module
 
 - Real-time messaging using WebSocket
 - Supports personal and group conversations
+- Group admin features: Add/kick/promote/demote users
 - Send text, image, and video messages
 - Read receipts and delivery status
 
@@ -51,6 +55,11 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 
 - Show typing indicators and message status
 - Use React-Toastify for alert messages
+
+### 📞 Calling Module
+
+- One-on-one **video/voice calling** with WebRTC
+- Call alerts and signaling via Socket.IO
 
 ---
 
@@ -64,16 +73,19 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 | `/api/users`     | GET    | Fetch user profile(s)            |
 | `/api/messages`  | GET    | Get chat history                 |
 | `/api/messages`  | POST   | Send new message                 |
+| `/api/groups`    | PATCH  | Add/kick/promote/demote members  |
+| `/api/otp`       | POST   | Send/verify OTP                  |
 
 ### WebSocket Events (Socket.IO)
 
-| Event          | Description                                |
-|----------------|--------------------------------------------|
-| `connect`      | Establishes real-time connection           |
-| `sendMessage`  | Broadcasts a new message to the chat       |
-| `typing`       | Shows typing indicator in active chat      |
-| `userOnline`   | Broadcasts user's online status            |
+| Event                  | Description                                |
+|------------------------|--------------------------------------------|
+| `connect`              | Establishes real-time connection           |
+| `sendMessage`          | Broadcasts a new message to the chat       |
+| `typing`               | Shows typing indicator in active chat      |
+| `userOnline`           | Broadcasts user's online status            |
 | `callUser` / `acceptCall` / `endCall` | Handles WebRTC signaling for calls |
+| `groupUpdate`          | Emits group member/admin changes           |
 
 ---
 
@@ -84,7 +96,7 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 | **Frontend** | React, Tailwind CSS, DaisyUI, Zustand          |
 | **Backend**  | Node.js, Express.js                            |
 | **Database** | MongoDB with Mongoose                          |
-| **Auth**     | JWT + Firebase (Google Login)                  |
+| **Auth**     | JWT + Firebase (Google Login) + Nodemailer OTP |
 | **Realtime** | Socket.IO + WebRTC                             |
 
 ---
@@ -93,6 +105,5 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 
 ### 🔐 Environment Variables
 
-Create a `.env` file in both `server/` and `client/` directories with the following keys:
+Create a `.env` file in both `server/` and `client/` directories
 
-#### `server/.env`
