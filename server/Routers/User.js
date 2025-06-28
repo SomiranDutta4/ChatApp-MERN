@@ -23,5 +23,6 @@ UserRouter.patch('/edit/account/',auth,UserController.editAcc)
 UserRouter.get('/search/',UserController.searchForGroup)
 UserRouter.patch('/send/mail/',UserController.sendEmail)
 UserRouter.post('/update/pic/',auth,UserController.updatePic)
+UserRouter.post('/feedback',auth,UserController.feedback)
 
 module.exports=UserRouter

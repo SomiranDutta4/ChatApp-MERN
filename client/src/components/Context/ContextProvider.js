@@ -132,33 +132,7 @@ const ContextProvider = ({ children }) => {
       setLoading(false)
       return
     }
-
-    // let AuthUrl = URL + `/user/auth/?token=${User.token}`;
     let url = URL + `/chat/get/all/?_id=${User._id}&token=${User.token}`;
-
-    // let isFoundLocal = false
-
-    // if (AllChats && AllChats != '') {
-    //   isFoundLocal = true
-    // }
-
-    // if (isFoundLocal == true) {
-    //   try {
-    //     let response = await fetch(AuthUrl)
-    //     if (response.status == 200) {
-
-    //     } else if (response.status == 401) {
-    //       localStorage.removeItem('UserData')
-    //       setUser('')
-    //       setChats([])
-    //       navigate('/Login')
-    //     } else {
-    //       setLoading(true)
-    //     }
-    //     return
-    //   } catch (error) {
-    //   }
-    // } else {
       setLoading(true)
     // }
 
@@ -207,6 +181,7 @@ const ContextProvider = ({ children }) => {
       navigate('/Login')
     }
   }
+  //-------------calling-----------------
 
 
   return (

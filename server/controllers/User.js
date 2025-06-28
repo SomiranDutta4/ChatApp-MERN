@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const Chat = require('../Models/Chat')
 const Message = require('../Models/Message')
+const Review = require('../Models/Review')
 const { validationResult } = require('express-validator');
 const nodemailer = require('nodemailer')
 
@@ -306,3 +307,21 @@ module.exports.updatePic = async function (req, res) {
 module.exports.authenticate = function (req, res) {
     return res.status(200).json({ message: 'authenticated' })
 }
+
+module.exports.feedback = async (req, res) => {
+    const { rating, feedback, type } = req.body;
+
+    if (!rating || !feedback) {
+        return res.status(400).json({ message: 'Rating and feedback are required.' });
+    }
+
+    try {
+        const review = new Review({ rating, feedback, type });
+        await review.save();
+
+        res.status(200).json({ message: 'Feedback saved successfully.' });
+    } catch (err) {
+        console.error('Error saving review:', err);
+        res.status(500).json({ message: 'Server error.' });
+    }
+};

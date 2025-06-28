@@ -9,6 +9,8 @@ import Onechat from './OneChat/Onechat'
 import ChatBot from './OneChat/ChatBot'
 import Socket from './Socket/Socket'
 import { Flip, ToastContainer, toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPhone, faPhoneSlash } from '@fortawesome/free-solid-svg-icons';
 
 
 const Chatpage = () => {
@@ -17,7 +19,7 @@ const Chatpage = () => {
   const [isSingleChat, setSingleChat] = useState(false)
   const [isAddingGroup, setAddingGroup] = useState(false)
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
+  const [incomingCall, setIncomingCall] = useState(null); // { from, roomId }
 
   useEffect(() => {
     const handleResize = () => {
@@ -36,7 +38,7 @@ const Chatpage = () => {
   }, [isSending])
 
   useEffect(() => {
-    if (!socket||!User) return;
+    if (!socket || !User) return;
 
     const handleGroupAdded = (user) => {
       if (user === User._id) {
@@ -73,10 +75,54 @@ const Chatpage = () => {
     };
   }, [socket, clickedChat, setChats, setClicked, setSingleChat, setloadAll]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('incoming-video-call', ({ from, roomId }) => {
+      console.log(`Incoming video call from ${from} in room ${roomId}`);
+      setIncomingCall({ from, roomId });
+    });
+
+    return () => socket.off('incoming-video-call');
+  }, [socket]);
+
 
   if (windowWidth <= 850) {
     return (
       <div className='ChatPage'>
+        {incomingCall && (
+          <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50">
+            <div className="bg-gray-900 text-white px-6 py-4 rounded-xl shadow-lg flex flex-col items-center">
+              <p className="text-lg font-semibold">Incoming Video Call</p>
+              <div className="mt-3 flex gap-4">
+                <button
+                  className="w-12 h-12 flex items-center justify-center rounded-full bg-green-600 hover:bg-green-700 transition"
+                  onClick={() => {
+                    setIncomingCall(null);
+                    window.open(`/video-call/${incomingCall.roomId}`);
+                  }}
+                  title="Answer Call"
+                >
+                  <FontAwesomeIcon icon={faPhone} size="lg" />
+                </button>
+                <button
+                  className="w-12 h-12 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 transition"
+                  onClick={() => {
+                    socket.emit('leave-video-room', {
+                      roomId: incomingCall.roomId,
+                      userId: User._id
+                    });
+                    setIncomingCall(null);
+                  }}
+                  title="Decline Call"
+                >
+                  <FontAwesomeIcon icon={faPhoneSlash} size="lg" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* {isSingleChat===false && <AllChats loadAll={loadAll}  isSingleChat={isSingleChat} setSingleChat={setSingleChat} setloadAll={setloadAll}/>} */}
         {isAddingGroup === false && isSingleChat === false && showingBot === false && <AllChats setAddingGroup={setAddingGroup} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
         {isAddingGroup === false && isSingleChat === true && loadAll === false && <Onechat windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
