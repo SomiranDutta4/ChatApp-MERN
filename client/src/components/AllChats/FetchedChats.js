@@ -63,7 +63,7 @@ const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleC
         </div>} */}
       <div
         onClick={() => navigate('/feedback')}
-        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg cursor-pointer transition-all z-50"
+        className="botContainer"
         title="Send Feedback"
       >
         <FontAwesomeIcon icon={faMessage} size="lg" />
