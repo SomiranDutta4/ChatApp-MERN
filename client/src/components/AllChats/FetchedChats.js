@@ -1,14 +1,12 @@
 import React, { useEffect, useContext } from 'react'
 import IndChat from './indChats/IndChat'
-import { useNavigate } from 'react-router-dom'
 import LoadingScreen from './LoadingScreen'
 import { AppContext } from '../Context/ContextProvider'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faRobot } from '@fortawesome/free-solid-svg-icons'
 
 const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleChat }) => {
 
-  const { AllChats, isLoading, setShowingBot, showingBot, setClicked, getChats } = useContext(AppContext)
+  const { AllChats, isLoading, setShowingBot, setClicked, getChats } = useContext(AppContext)
 
   const loadBotAcc = () => {
     setClicked('')
@@ -54,11 +52,11 @@ const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleC
           <div style={{ color: 'white', textAlign: 'center', margin: '20px 0 20px 0', fontSize: '120%' }}>No Chats to display</div>
         }
       </div>
-      {showingBot === false &&
+      {/* {showingBot === false &&
         <div onClick={loadBotAcc} className='botContainer'>
           <span className='BotText'>Talk with Ai </span>
           <FontAwesomeIcon icon={faRobot}></FontAwesomeIcon>
-        </div>}
+        </div>} */}
 
     </div>
   )
