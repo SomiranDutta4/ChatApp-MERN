@@ -158,6 +158,52 @@ io.on('connection', (socket) => {
     } catch (error) { }
   })
 
+  // Handle incoming video call request
+  socket.on('video-call-request', ({ to, from, roomId }) => {
+    try {
+      console.log(`Video call request from ${from} to ${to} in room ${roomId}`);
+      io.to(to).emit('incoming-video-call', { from, roomId });
+    } catch (error) {
+      console.error('video-call-request error:', error);
+    }
+  });
+
+  // Join room (used by both caller and callee)
+  socket.on('join-video-room', ({ roomId, userId }) => {
+    socket.join(roomId);
+    console.log(`${userId} joined video room ${roomId}`);
+
+    if (!videoRoomUsers[roomId]) {
+      videoRoomUsers[roomId] = [];
+    }
+
+    if (!videoRoomUsers[roomId].includes(userId)) {
+      videoRoomUsers[roomId].push(userId);
+    }
+
+    // If another user is already in the room, notify the new joiner
+    if (videoRoomUsers[roomId].length > 1) {
+      socket.to(roomId).emit('other-user-joined');
+    }
+  });
+
+
+  // Handle WebRTC offer
+  socket.on('offer', ({ sdp, roomId }) => {
+    socket.to(roomId).emit('offer', { sdp });
+  });
+
+  // Handle WebRTC answer
+  socket.on('answer', ({ sdp, roomId }) => {
+    socket.to(roomId).emit('answer', { sdp });
+  });
+
+  // Handle ICE candidate exchange
+  socket.on('ice-candidate', ({ candidate, roomId }) => {
+    socket.to(roomId).emit('ice-candidate', { candidate });
+  });
+
+
   socket.off('setup', () => {
     try {
       console.log('user disconnected')

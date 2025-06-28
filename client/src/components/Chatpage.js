@@ -9,6 +9,7 @@ import Onechat from './OneChat/Onechat'
 import ChatBot from './OneChat/ChatBot'
 import Socket from './Socket/Socket'
 import { Flip, ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom'
 
 
 const Chatpage = () => {
@@ -17,7 +18,7 @@ const Chatpage = () => {
   const [isSingleChat, setSingleChat] = useState(false)
   const [isAddingGroup, setAddingGroup] = useState(false)
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -36,7 +37,7 @@ const Chatpage = () => {
   }, [isSending])
 
   useEffect(() => {
-    if (!socket||!User) return;
+    if (!socket || !User) return;
 
     const handleGroupAdded = (user) => {
       if (user === User._id) {
@@ -73,6 +74,19 @@ const Chatpage = () => {
     };
   }, [socket, clickedChat, setChats, setClicked, setSingleChat, setloadAll]);
 
+  useEffect(() => {
+    if (!socket) return;
+
+    socket.on('incoming-video-call', ({ from, roomId }) => {
+      console.log(`Incoming video call from ${from} in room ${roomId}`);
+      const accept = window.confirm('Incoming video call. Accept?');
+      if (accept) {
+        navigate(`/video-call/${roomId}`);
+      }
+    });
+
+    return () => socket.off('incoming-video-call');
+  }, [socket]);
 
   if (windowWidth <= 850) {
     return (

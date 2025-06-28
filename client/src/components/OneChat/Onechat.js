@@ -128,8 +128,19 @@ const Onechat = ({ setSingleChat, setloadAll, windowWidth }) => {
     setSingleChat(false);
   };
   const videoCall = () => {
+    const receiver = clickedChat.users.find(u => u._id !== User._id);
+    if (!receiver) return;
 
-  }
+    const roomId = `vc_${Date.now()}_${User._id}`;
+    socket.emit('video-call-request', {
+      to: receiver._id,
+      from: User._id,
+      roomId,
+    });
+
+    navigate(`/video-call/${roomId}`);
+  };
+
   const voiceCall = () => {
 
   }
@@ -175,6 +186,8 @@ const Onechat = ({ setSingleChat, setloadAll, windowWidth }) => {
 
     setFormData({ file });
   };
+
+
 
   useEffect(() => {
     messageEnd.current?.scrollIntoView();
