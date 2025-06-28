@@ -4,7 +4,7 @@ import './allChats.css'
 import ChatSideWindow from './AllChats/SideWindow'
 import { AppContext } from './Context/ContextProvider'
 import Group from './groupChat/Group'
-import SettingsPage from './Profile/Settings'
+// import SettingsPage from './Profile/Settings'
 import Onechat from './OneChat/Onechat'
 import ChatBot from './OneChat/ChatBot'
 import Socket from './Socket/Socket'
@@ -36,7 +36,7 @@ const Chatpage = () => {
   }, [isSending])
 
   useEffect(() => {
-    if (!socket) return;
+    if (!socket||!User) return;
 
     const handleGroupAdded = (user) => {
       if (user === User._id) {
@@ -50,7 +50,7 @@ const Chatpage = () => {
     return () => {
       socket.off("group added", handleGroupAdded); // Cleanup previous listeners
     };
-  }, [socket, User._id]); // Ensure useEffect runs only when socket or User._id changes
+  }, [socket, User]); // Ensure useEffect runs only when socket or User._id changes
 
   useEffect(() => {
     if (!socket) return;
@@ -78,12 +78,12 @@ const Chatpage = () => {
     return (
       <div className='ChatPage'>
         {/* {isSingleChat===false && <AllChats loadAll={loadAll}  isSingleChat={isSingleChat} setSingleChat={setSingleChat} setloadAll={setloadAll}/>} */}
-        {isAddingGroup === false && isSingleChat === false && AccountPage === false && showingBot === false && <AllChats setAddingGroup={setAddingGroup} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
-        {isAddingGroup === false && isSingleChat === true && loadAll === false && AccountPage === false && <Onechat windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
-        {showingBot === true && isSingleChat === false && loadAll === false && AccountPage === false && <ChatBot setSingleChat={setSingleChat} setloadAll={setloadAll}></ChatBot>}
+        {isAddingGroup === false && isSingleChat === false && showingBot === false && <AllChats setAddingGroup={setAddingGroup} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
+        {isAddingGroup === false && isSingleChat === true && loadAll === false && <Onechat windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
+        {showingBot === true && isSingleChat === false && loadAll === false && <ChatBot setSingleChat={setSingleChat} setloadAll={setloadAll}></ChatBot>}
         {/* {isSingleChat===true && isAddingGroup===false &&AccountPage===false && <MainChatPage loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />} */}
         {isAddingGroup === true && <Group setloadAll={setloadAll} setSingleChat={setSingleChat} setAddingGroup={setAddingGroup}></Group>}
-        {AccountPage === true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>}
+        {/* {AccountPage === true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>} */}
         {User && <Socket ></Socket>}
         <ToastContainer
           position="top-center"
@@ -106,13 +106,13 @@ const Chatpage = () => {
   } else {
     return (
       <div className='ChatPage'>
-        {isAddingGroup === false && AccountPage === false && <AllChats setAddingGroup={setAddingGroup} windowWidth={windowWidth} loadAll={loadAll} isSingleChat={isSingleChat} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
-        {showingBot === true && isSingleChat === false && AccountPage === false && <ChatBot setSingleChat={setSingleChat} setloadAll={setloadAll}></ChatBot>}
-        {isSingleChat && showingBot === false && isAddingGroup === false && AccountPage === false && <Onechat loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
+        {isAddingGroup === false && <AllChats setAddingGroup={setAddingGroup} windowWidth={windowWidth} loadAll={loadAll} isSingleChat={isSingleChat} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
+        {showingBot === true && isSingleChat === false && <ChatBot setSingleChat={setSingleChat} setloadAll={setloadAll}></ChatBot>}
+        {isSingleChat && showingBot === false && isAddingGroup === false && <Onechat loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />}
         {/* {isSingleChat && isAddingGroup===false && AccountPage===false && <MainChatPage loadAll={loadAll} windowWidth={windowWidth} setSingleChat={setSingleChat} setloadAll={setloadAll} />} */}
-        {!isSingleChat && isAddingGroup === false && AccountPage === false && showingBot === false && <ChatSideWindow />}
+        {!isSingleChat && isAddingGroup === false && showingBot === false && <ChatSideWindow />}
         {isAddingGroup === true && <Group setloadAll={setloadAll} setSingleChat={setSingleChat} setAddingGroup={setAddingGroup}></Group>}
-        {AccountPage === true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>}
+        {/* {AccountPage === true && <SettingsPage setloadAll={setloadAll} setSingleChat={setSingleChat}></SettingsPage>} */}
         {User && <Socket></Socket>}
         <ToastContainer
           position="top-center"

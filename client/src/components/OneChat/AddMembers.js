@@ -168,46 +168,73 @@ const AddParticipantsPopup = ({ setAdding }) => {
   }, [])
 
   return (
-    <div className="add-participants-popup">
-      {AuthError.message != '' &&
-        <div className={`AuthError-Container-new ${AuthError.type}`}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 p-4">
+      {AuthError.message !== '' && (
+        <div className={`mb-4 px-4 py-2 rounded text-sm text-white bg-red-600`}>
           <p>{AuthError.message}</p>
-        </div>}
+        </div>
+      )}
 
-      {isLoading === true &&
+      {isLoading && (
         <>
-          <div className='spinnerDiv-group'><FontAwesomeIcon style={{ color: 'white' }} className="spinner-Group fa-spin-pulse" icon={faSpinner}></FontAwesomeIcon></div>
-          <div className='freezedDisplay'></div>
+          <div className="absolute inset-0 bg-black bg-opacity-40 z-40 flex items-center justify-center">
+            <FontAwesomeIcon icon={faSpinner} className="fa-spin text-white text-3xl" />
+          </div>
         </>
-      }
-      <div className='Cancel-Addmember' onClick={Cancel}>Back</div>
-      <div className="options">
-        <div
-          className={`option ${selectedOption === 'local' ? 'active' : ''}`}
-          onClick={() => handleOptionClick('local')}
-        >
-          Local
+      )}
+
+      <div className="relative z-50 w-full max-w-lg bg-[#1e1e1e] text-[#f0f0f0] rounded-lg shadow-lg p-6 space-y-4">
+        <div className="flex justify-between items-center mb-2">
+          <h2 className="text-lg font-semibold">Add Participants</h2>
+          <button
+            onClick={Cancel}
+            className="text-gray-400 hover:text-gray-200 text-sm px-2 py-1 border border-gray-600 rounded"
+          >
+            ✕ Back
+          </button>
         </div>
-        <div
-          className={`option ${selectedOption === 'global' ? 'active' : ''}`}
-          onClick={() => handleOptionClick('global')}
-        >
-          Global
+
+        <div className="flex space-x-4 text-sm">
+          <button
+            className={`px-4 py-1 rounded border ${selectedOption === 'local'
+              ? 'bg-[#2a2a2a] text-white border-gray-500'
+              : 'text-gray-400 border-gray-600 hover:bg-[#2a2a2a]'
+              }`}
+            onClick={() => handleOptionClick('local')}
+          >
+            Local
+          </button>
+          <button
+            className={`px-4 py-1 rounded border ${selectedOption === 'global'
+              ? 'bg-[#2a2a2a] text-white border-gray-500'
+              : 'text-gray-400 border-gray-600 hover:bg-[#2a2a2a]'
+              }`}
+            onClick={() => handleOptionClick('global')}
+          >
+            Global
+          </button>
         </div>
-      </div>
-      <input
-        className='inputDisplay-Addmembers-group'
-        type="text"
-        placeholder="Search..."
-        value={searchTerm}
-        onChange={handleSearchChange}
-      />
-      <button className='searchBtn-Add'>Search</button>
-      <div className="users-container">
-        {renderUsersList()}
+
+        <div className="flex items-center space-x-2">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            className="w-full bg-[#2a2a2a] text-sm text-white placeholder-gray-400 px-3 py-2 rounded border border-gray-600 focus:outline-none"
+          />
+          <button className="px-3 py-2 text-sm rounded bg-[#2a2a2a] border border-gray-600 text-gray-300 hover:bg-[#333] transition">
+            Search
+          </button>
+        </div>
+
+        <div className="max-h-[300px] overflow-y-auto space-y-2">
+          {renderUsersList()}
+        </div>
       </div>
     </div>
   );
+
 };
 
 export default AddParticipantsPopup;

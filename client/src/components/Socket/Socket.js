@@ -1,20 +1,29 @@
 import React, { useEffect, useContext } from 'react'
 import { AppContext } from '../Context/ContextProvider'
 import { toast } from 'react-toastify';
+import { useRef } from 'react';
 
 
 const Socket = () => {
-  const { User, clickedChat, socket, LoadedChats,
-    NewMEssageHandler, setLoadedChats, setClicked, setChats } = useContext(AppContext)
+  const { User, clickedChat, socket,
+    NewMEssageHandler, setClicked, setChats } = useContext(AppContext)
+  const notificationSound = useRef(new Audio('/notification.mp3'));
 
   useEffect(() => {
-    if (!socket) {
-      return
-    }
+    if (!socket) return;
+
     const messageHandler = (newMessage) => {
       NewMEssageHandler(newMessage, false);
 
       if (!clickedChat || clickedChat._id !== newMessage.chat) {
+        try {
+          notificationSound.current.play().catch(err => {
+            console.warn("Audio play failed:", err);
+          });
+        } catch (err) {
+          console.error("Error playing notification sound:", err);
+        }
+
         toast(`${newMessage.sender.name}: ${newMessage.content}`, {
           position: "top-center",
           autoClose: 3000,
@@ -22,16 +31,14 @@ const Socket = () => {
           closeOnClick: false,
           pauseOnHover: true,
           draggable: false,
-          progress: undefined,
           theme: "light",
         });
       }
     };
+
     socket.on("message recieved", messageHandler);
-    return () => {
-      socket.off("message recieved", messageHandler);
-    };
-  })
+    return () => socket.off("message recieved", messageHandler);
+  }, [socket, clickedChat]);
 
 
   useEffect(() => {
@@ -57,42 +64,38 @@ const Socket = () => {
   }, [socket, User.token, setChats]);
 
 
-  useEffect(() => {
-    if (!socket) {
-      return
-    }
-    socket.on('added admin', groupDetails => {
-      let newLoadedChats = LoadedChats
-      newLoadedChats.forEach(chat => {
-        if (chat._id === groupDetails.chatId) {
-          chat.groupAdmins.push(User)
-          if (clickedChat._id === chat._id) {
-            setClicked(chat)
-          }
-        }
-      })
-      setLoadedChats(newLoadedChats)
-    })
-  })
 
   useEffect(() => {
-    if (!socket) {
-      return
-    }
-    socket.on('removed admin', groupDetails => {
-      let newLoadedChats = LoadedChats
-      newLoadedChats.forEach(chat => {
-        if (chat._id === groupDetails.chatId) {
-          let newAdmins = chat.groupAdmins.filter(user => user._id !== User._id)
-          chat.groupAdmins = newAdmins
-          if (clickedChat._id === chat._id) {
-            setClicked(chat)
-          }
-        }
-      })
-      setLoadedChats(newLoadedChats)
-    })
-  })
+    if (!socket || !clickedChat?._id) return;
+
+    const handleAddedAdmin = (groupDetails) => {
+      if (clickedChat._id === groupDetails.chatId) {
+        const updatedChat = {
+          ...clickedChat,
+          groupAdmins: [...clickedChat.groupAdmins, groupDetails.user],
+        };
+        setClicked(updatedChat);
+      }
+    };
+
+    const handleRemovedAdmin = (groupDetails) => {
+      if (clickedChat._id === groupDetails.chatId) {
+        const updatedChat = {
+          ...clickedChat,
+          groupAdmins: clickedChat.groupAdmins.filter(admin => admin._id !== groupDetails.user._id),
+        };
+        setClicked(updatedChat);
+      }
+    };
+
+    socket.on('added admin', handleAddedAdmin);
+    socket.on('removed admin', handleRemovedAdmin);
+
+    return () => {
+      socket.off('added admin', handleAddedAdmin);
+      socket.off('removed admin', handleRemovedAdmin);
+    };
+  }, [socket, clickedChat]);
 
 
   return (

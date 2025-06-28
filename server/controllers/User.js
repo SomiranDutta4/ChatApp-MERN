@@ -3,7 +3,7 @@ const User = require('../Models/User')
 const bcrypt = require('bcrypt')
 const mongoose = require('mongoose')
 const Chat = require('../Models/Chat')
-const Message=require('../Models/Message')
+const Message = require('../Models/Message')
 const { validationResult } = require('express-validator');
 const nodemailer = require('nodemailer')
 
@@ -17,6 +17,12 @@ const transporter = nodemailer.createTransport({
         pass: process.env.smtpGmail_Pass,
     }
 })
+
+function generateOTP(length = 6) {
+    return Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit numeric OTP
+}
+
+
 module.exports.signUp = async function (req, res) {
     let errors = validationResult(req);
     if (!errors.isEmpty()) { return res.status(440).json({ message: 'validation failed' }) }
@@ -37,27 +43,21 @@ module.exports.signUp = async function (req, res) {
             name: req.body.name,
             contactNumber: req.body.email,
             password: newpassword,
-            pic:req.body.pic,
+            pic: req.body.pic,
             isAdmin: isAdmin
         })
-        // .then(done => {
-        //     return res.status(200).json({ message: 'Successfully created an account' })
-        // }).catch(err => {
-        //     return res.status(500).json({ message: 'Some Server side error, we regret for any indiscrepency' })
-        // })
-        // })
-        let newId=new mongoose.Types.ObjectId
+        let newId = new mongoose.Types.ObjectId
         await Message.create({
-            content:'Chat with yourself',
-            _id:newId,
+            content: 'Chat with yourself',
+            _id: newId,
         })
         const chat = await Chat.create({
-            chatName: Newuser.name,
+            chatName: 'YOU',
             isGroupChat: false,
             users: [Newuser],
-            latestMessage:newId,
+            latestMessage: newId,
             unseenMsg: 1,
-            messages:[],
+            messages: [],
             createdAt: new Date()
         })
         // console.log(chat);
@@ -105,10 +105,9 @@ module.exports.signIn = function (req, res) {
     if (!errors.isEmpty()) { return res.status(440).json({ message: 'validation failed' }) }
 
     let password = req.query.password
-    if(!password){
-        password=req.body.password
+    if (!password) {
+        password = req.body.password
     }
-    console.log(req.query,password)
     User.findOne({
         contactNumber: req.query.email
     })
@@ -143,18 +142,26 @@ module.exports.signIn = function (req, res) {
         })
 }
 
-module.exports.searchUser = function (req, res) {
+module.exports.searchUser = async function (req, res) {
+    const searchQuery = req.query.user?.trim();
 
-    User.find({ name: req.query.user }).then(user => {
-        if (!user || user.length == 0) { return res.status(400).json({ message: 'no such user found' }) }
+    if (!searchQuery) {
+        return res.status(400).json({ message: 'Search query required' });
+    }
 
-        let sentUsers = []
-        user.forEach(ele => {
-            let userArray = [req.user]
-            if (String(req.user._id) != String(ele._id)) {
-                userArray.push(ele)
-            }
-            sentUsers.push({
+    try {
+        // Using regex for partial match and case-insensitive search
+        const users = await User.find({
+            name: { $regex: searchQuery, $options: 'i' }  // i = case-insensitive
+        });
+
+        if (!users.length) {
+            return res.status(404).json({ message: 'No users found' });
+        }
+
+        const sentUsers = users
+            .filter(u => String(u._id) !== String(req.user._id))
+            .map(ele => ({
                 name: ele.name,
                 _id: ele._id,
                 pic: ele.pic,
@@ -162,15 +169,16 @@ module.exports.searchUser = function (req, res) {
                 groupAdmins: [],
                 createdBy: '',
                 contactNumber: ele.contactNumber,
-                users: userArray
-            })
-        })
-        return res.status(201).json({ message: 'found these', users: sentUsers })
-    }).catch(err => {
-        console.log(err)
-        return res.status(500).json({ message: 'error in searching, we regret our inconveninience', err })
-    })
+                users: [req.user, ele]
+            }));
+
+        return res.status(200).json({ message: 'Users found', users: sentUsers });
+    } catch (err) {
+        console.error("Error in user search:", err);
+        return res.status(500).json({ message: 'Internal server error', err });
+    }
 }
+
 module.exports.searchForGroup = function (req, res) {
     User.find().then(users => {
         let foundUsers = users.filter(user => user.name.toLowerCase().startsWith(req.query.input.toLowerCase()))
@@ -180,7 +188,7 @@ module.exports.searchForGroup = function (req, res) {
 
 // module.exports.editName=function(req,res){
 //     User.findOne({contactNumber:req.use.contactNumber}).then(user=>{
-//         user.name=req.body.name
+// user.name=req.body.name
 //         user.save()
 //         return res.status(200).json({message:'changed Successfully'})
 //     }).catch(err=>{
@@ -201,54 +209,98 @@ module.exports.searchForGroup = function (req, res) {
 //         return res.status(500).json({message:'error occured'})
 //     })
 // }
+
 module.exports.editAcc = async function (req, res) {
+    console.log(req.body)
     try {
-        let user = await User.findById(req.user._id)
-        if (user) {
-            let result = await bcrypt.compare(user.password, req.body.oldPassword)
-            if (req.body.newPass && !result) {
-                return res.status(400).json({ message: 'wrong old pass' })
-            } else {
-                user.name = req.body.newName
-                user.contactNumber = req.body.newNumber
-                // user.password=req.body.newPass
-                user.pic = req.body.newPic
-                user.save()
-                if (req.body.newPass) {
-                    let newPass = await bcrypt.hash(req.body.newPass, 12)
-                    user.password = newPass
-                    user.save()
-                }
-                // let newPic=user.pic
-                // if(req.body.newPic){newPic=req.body.newPic}
-                // let user={
-                //     name:req.body.newName,
-                //     contactNumber:req.body.newNumber,
-                //     email:user.email,
-                //     pic:newPic,
-                //     isAdmin:user.isAdmin
-                // }
-                return res.status(200).json({
-                    message: 'updated',
-                    _id: user._id,
-                    user: user
-                })
-            }
-        } else {
-            return res.status(400).json({ message: 'could not update' })
+        const user = await User.findById(req.user._id);
+        if (!user) return res.status(400).json({ message: 'User not found' });
+
+        const { otp, newName, newNumber, oldPassword, newPass, newPic } = req.body;
+
+        if (!newPass && newNumber == user.contactNumber) {
+            user.name = req.body.newName
+            await user.save();
+            return res.status(200).json({ message: 'updated profile', user: user });
         }
-    } catch (err) {
-        return res.status(500).json({ message: 'some error occured, we regtret our shortcomings' })
-    }
-}
-module.exports.updatePic=async function(req,res){
-    let user=await User.findById(req.user._id);
-    if(user){
-        user.pic=req.query.url;
+        //check for password correct
+        if (oldPassword) {
+            const isPasswordCorrect = await bcrypt.compare(oldPassword, user.password);
+            if (!isPasswordCorrect) {
+                return res.status(401).json({ message: 'Old password is incorrect' });
+            }
+        }
+        if (!otp) {
+            const generatedOTP = generateOTP();
+            user.otp = generatedOTP;
+            user.otpExpiry = Date.now() + 10 * 60 * 1000;
+            await user.save();
+
+            try {
+                await transporter.sendMail({
+                    from: {
+                        name: 'SocioNode',
+                        address: 'noReply@SocioNode.user',
+                    },
+                    to: user.contactNumber,
+                    subject: 'OTP for Password Change',
+                    html: `<div>
+            <h2>OTP to update your account:</h2>
+            <h1>${generatedOTP}</h1>
+            <p>This OTP is valid for 10 minutes.</p>
+            <br>
+            <p>If this wasn't you, ignore this email.</p>
+            <span>Regards, SocioNode Team</span>
+          </div>`,
+                });
+            } catch (err) {
+                console.log("OTP email error:", err);
+                return res.status(500).json({ message: 'Could not send OTP email' });
+            }
+
+            return res.status(202).json({
+                message: 'OTP sent to your email. Please verify to proceed.',
+            });
+        }
+        if (
+            user.otp !== otp ||
+            !user.otpExpiry ||
+            new Date(user.otpExpiry) < new Date()
+        ) {
+            return res.status(401).json({ message: 'Invalid or expired OTP' });
+        }
+        if (newName) user.name = newName;
+        if (newNumber) user.contactNumber = newNumber;
+        if (newPass) {
+            const hashed = await bcrypt.hash(newPass, 12);
+            user.password = hashed;
+        }
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+
         await user.save();
-        return res.status(200).json({success:true});
-    }else{
-        return res.status(400).json({message:'some error occures'})
+        console.log('success');
+        return res.status(200).json({
+            message: 'User updated successfully',
+            _id: user._id,
+            user: user,
+        });
+    } catch (err) {
+        console.error('editAcc error:', err);
+        return res.status(500).json({
+            message: 'Some error occurred, we regret our shortcomings',
+        });
+    }
+};
+
+module.exports.updatePic = async function (req, res) {
+    let user = await User.findById(req.user._id);
+    if (user) {
+        user.pic = req.query.url;
+        await user.save();
+        return res.status(200).json({ success: true });
+    } else {
+        return res.status(400).json({ message: 'some error occures' })
     }
 }
 module.exports.authenticate = function (req, res) {

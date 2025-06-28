@@ -9,7 +9,7 @@ import image from '../../assets/images/defIcon.jpg';
 
 const Login = ({ }) => {
 
-  const { setUser,URL } = useContext(AppContext)
+  const { setUser, URL } = useContext(AppContext)
   let navigate = useNavigate()
 
   const [pass, setPass] = useState('hide')
@@ -69,7 +69,7 @@ const Login = ({ }) => {
       return
     }
     //200,401,500,400-no user
-    let Loginurl = URL+`/user/Login/?email=${number}&password=${Password}`
+    let Loginurl = URL + `/user/Login/?email=${number}&password=${Password}`
     try {
       let response = await fetch(Loginurl, {
         method: 'POST',
@@ -118,7 +118,7 @@ const Login = ({ }) => {
       toast.error('The password should contain atleast 6 characters')
       return
     }
-    let SignUpurl = URL+'/user/Signup'
+    let SignUpurl = URL + '/user/Signup'
     try {
       let response = await fetch(SignUpurl, {
         method: 'POST',
@@ -129,10 +129,10 @@ const Login = ({ }) => {
           email: number,
           password: Password,
           name: name,
-          pic:image
+          pic: image
         })
       })
-      let verifyUrl = URL+`/user/send/mail/?status=${response.status}&email=${number}`
+      let verifyUrl = URL + `/user/send/mail/?status=${response.status}&email=${number}`
       fetch(verifyUrl, {
         method: 'PATCH',
       })

@@ -1,184 +1,187 @@
+import React, { useEffect, useState, useContext, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import React, { useEffect, useState,useContext } from 'react'
+import axios from 'axios'
 import { AppContext } from '../../Context/ContextProvider'
 
-const IndChat = ({pic,setloadAll,_id,chatName,isGroupChat,lmContent,lmSender,lmSentAt,setSingleChat,unreadMsg,senderId}) => {
-  const [timePassed,setTime]=useState('')
+const IndChat = ({
+  pic, setloadAll, _id, chatName, isGroupChat,
+  lmContent, lmSender, lmSentAt, setSingleChat,
+  unreadMsg, senderId
+}) => {
+  const [timePassed, setTime] = useState('')
+  const [showMenu, setShowMenu] = useState(false)
+  const [latestMsgSender, setSender] = useState(lmSender)
+  const menuRef = useRef(null)
+  const navigate = useNavigate()
 
+  const {
+    User, setUser, setClicked, setChats, URL,
+    setShowingBot, setMessages, getChats
+  } = useContext(AppContext)
 
-  let {
-    User,setUser,LoadedChats,clickedChat,
-    setClicked,setChats,setShowingBot,setMessages
-  }=useContext(AppContext)
-  const navigate=useNavigate()
-
-  const [latestMsgSender,setSender]=useState(lmSender)
-  async function clickedOne(){
-
-    // let foundLocal=false
-
-    if(!User || !User.token){
+  async function clickedOne() {
+    if (!User?.token) {
       localStorage.removeItem('UserData')
       setUser('')
-      // setLoadedChats([])
       navigate('/Login')
       return
     }
-    if(clickedChat._id==_id){
-      return;
-    }
-    
-    // if(LoadedChats && LoadedChats.length>0){
-    //   for(let i=0;i<LoadedChats.length;i++){
-    //     if(LoadedChats[i]._id==_id){
-    //       setClicked(LoadedChats[i])
-    //       foundLocal=true
-    //     }
-    //   }
-    // }
+    if (_id === User._id) return
+
     setloadAll(false)
     setSingleChat(true)
     setShowingBot(false)
-    
-    // if(foundLocal==true){
-    //   let AuthUrl=`http://localhost:2000/user/auth/?token=${User.token}`
-    //   let response=await fetch(AuthUrl)
-    //   if(response.status==200){
-    //     console.log('hey? 3')
-    //   }else if(response.status(401)){
-    //     localStorage.removeItem('UserData')
-    //     setUser('')
-    //     setLoadedChats([])
-    //     setChats([])
-    
-    //     navigate('/Login')
-    //   }
+    setClicked('')
 
-    //   return
-    // }else
-    // {
-      setClicked('')
-      setSingleChat(true)
-      //i think this is redundant
-    // }
+    try {
+      const response = await fetch(`${URL}/chat/get/one/?_id=${_id}&chatName=${chatName}&token=${User.token}`, { method: 'GET' })
 
-    let url=`http://localhost:2000/chat/get/one/?_id=${_id}&chatName=${chatName}&token=${User.token}`
-    let response=await fetch(url,{
-      method:'GET',
-    })
-
-    if(response.status==401){
-      setUser('')
-      // setLoadedChats([])
-      setChats([])
-      navigate('/Login')
-    }else if(response.status==500){
-      console.log('server issue')
-    }else if(response.status==200){
-      let data=await response.json()
-      var number=User.contactNumber;
-      var users=[]
-      for(let i=0;i<data.users.length;i++){
-        if(isGroupChat===true){
-          users.push(data.users[i].name)
-        }else if(data.users[i].contactNumber!==User.contactNumber){
-          users.push(data.users[i].name)
-          number=data.users[i].contactNumber
-        }
+      if (response.status === 401) {
+        setUser('')
+        setChats([])
+        navigate('/Login')
+        return
       }
-      if(isGroupChat===true){
-        number=users
-      }
-      let latestMessageSeen=false
 
-      let newChat={
-        'pic':data.pic,
-        'number':number,
-        'isGroupChat':data.isGroupChat,
-        "chatName":data.chatName,
-        "_id":data._id,
-        // "messages":data.messages,
-        'users':data.users,
-        'groupAdmins':data.groupAdmins,
-        'createdBy':data.createdBy,
-        'latestMessageSeen':latestMessageSeen
+      const data = await response.json()
+      let number = User.contactNumber
+      const users = data.users
+        .filter(u => !isGroupChat && u.contactNumber !== User.contactNumber)
+        .map(u => u.name)
+
+      if (isGroupChat) number = users
+      else if (users.length) number = users[0]
+
+      const newChat = {
+        pic,
+        number,
+        isGroupChat: data.isGroupChat,
+        chatName: data.chatName,
+        _id: data._id,
+        users: data.users,
+        groupAdmins: data.groupAdmins,
+        createdBy: data.createdBy,
+        latestMessageSeen: false
       }
-      setMessages(data.messages);
-      let Chats=LoadedChats
-      Chats.push(newChat)
-      // setLoadedChats(Chats)
-      setloadAll(false)
+
+      setMessages(data.messages)
       setClicked(newChat)
       setSingleChat(true)
-      //i think this is redundant
+    } catch (err) {
+      console.error('Error loading chat:', err)
     }
   }
 
-  useEffect(()=>{
+  const deleteChat = async (e) => {
+    e.stopPropagation()
+    setShowMenu(false)
 
-    let createdAt=new Date(lmSentAt)
-    createdAt=createdAt.getTime()
-    const now=Date.now()
-    let difference=now-createdAt
-    const minute=Math.floor(difference/(1000*60))
-    const hours=Math.floor(difference/(1000*60*60))
-    const days=Math.floor(difference/(1000*60*60*24))
-    if(hours<=1){
-      setTime(minute+' minutes ago')
-    }else if(hours>1 && hours <24){
-      setTime(hours+' hours ago')
-    }else{
-      setTime(days+' days ago')
+    if (!User?.token) {
+      setUser('')
+      navigate('/Login')
+      return
     }
-    if(timePassed=== '0 minutes ago'){
-      setTime('Now')
+
+    try {
+      const response = await axios.delete(`${URL}/chat/delete/?token=${User.token}`, {
+        data: { chatId: _id }
+      })
+
+      if (response.status === 200) {
+        setChats(prevChats => prevChats.filter(chat => chat._id !== _id))
+        // getChats()
+      } else {
+        alert('Failed to delete chat')
+      }
+    } catch (err) {
+      console.error('Error deleting chat:', err)
+      alert('Could not delete chat')
     }
-    if(!lmSentAt){setTime('')}
+  }
 
-  },[lmSentAt])
+  useEffect(() => {
+    const createdAt = new Date(lmSentAt).getTime()
+    const now = Date.now()
+    const diff = now - createdAt
+    const mins = Math.floor(diff / (1000 * 60))
+    const hrs = Math.floor(diff / (1000 * 60 * 60))
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
 
-  useEffect(()=>{
-    if(User){
-    if(senderId===User._id){
-      setSender('you')
-    }}
-  },[])
-  
+    if (!lmSentAt) setTime('')
+    else if (hrs <= 1) setTime(mins === 0 ? 'Now' : `${mins} minutes ago`)
+    else if (hrs < 24) setTime(`${hrs} hours ago`)
+    else setTime(`${days} days ago`)
+  }, [lmSentAt])
+
+  useEffect(() => {
+    if (User && senderId === User._id) setSender('you')
+  }, [])
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setShowMenu(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
   return (
-    <div onClick={clickedOne} id={_id} className='AllChatsContainer'>
+    <div
+      onClick={clickedOne}
+      id={_id}
+      className='AllChatsContainer indChatWrapper relative group'
+    >
       <div className='pfpDiv'>
         <div className='pfp'>
-          <img className='dp' src={pic}></img>
+          <img className='dp' src={pic} alt="chat pfp" />
         </div>
       </div>
+
       <div className='indvidualChats'>
         <div className='chatNameDiv'>
-            <p className='chatName'>{chatName}</p>
+          <p className='chatName'>{chatName}</p>
         </div>
         <div className='latestmsgDiv'>
           <div className='chatElelmInd'>
-            {lmSender &&
-             <span className='sender LMdetails'>{latestMsgSender}:</span>
-            }
-            {lmContent && 
-              <span className='latestMessage LMdetails'>{lmContent}</span>
-            }
-            { !lmSender &&!lmContent &&
-              <>
+            {lmSender && <span className='sender LMdetails'>{latestMsgSender}:</span>}
+            {lmContent && <span className='latestMessage LMdetails'>{lmContent}</span>}
+            {!lmSender && !lmContent && (
               <span className='LMdetails StartMsg'>Start sending Messages</span>
-              </>
-            }
-            </div>
-            <div className='chatElelmInd'>
-      
-            <span className='sentAt LMdetails'>
-              {timePassed}
-            </span>
-            {unreadMsg===true &&
-              <div className='unreadMsg-chat'></div>
-            }
-            </div>
+            )}
+          </div>
+          <div className='chatElelmInd'>
+            <span className='sentAt LMdetails'>{timePassed}</span>
+            {unreadMsg === true && <div className='unreadMsg-chat'></div>}
+          </div>
         </div>
+      </div>
+
+      <div
+        className="absolute top-3 right-3 hidden group-hover:flex z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          onClick={() => setShowMenu(!showMenu)}
+          className="text-white text-lg px-2 py-1 rounded-full hover:bg-gray-700 transition"
+        >
+          ⋮
+        </button>
+
+        {showMenu && (
+          <div
+            ref={menuRef}
+            className="absolute top-8 right-0 w-36 bg-gray-800 border border-gray-600 rounded-md shadow-lg z-20"
+          >
+            <button
+              onClick={deleteChat}
+              className="w-full text-left px-4 py-2 text-sm text-white hover:bg-red-600 hover:text-white transition"
+            >
+              Delete Chat
+            </button>
+          </div>
+        )}
       </div>
     </div>
   )

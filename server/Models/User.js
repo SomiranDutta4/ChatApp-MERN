@@ -3,8 +3,7 @@ const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    contactNumber: { type: String, unique: true, required: true },
-    //it is actually email, not contact:could not change as many tgungs had ti be changed
+    contactNumber: { type: String, unique: true, required: true }, // treated as email
     password: { type: String, required: true },
     pic: {
       type: String,
@@ -17,9 +16,16 @@ const userSchema = new mongoose.Schema(
       required: true,
       default: false,
     },
+    otp: {
+      type: String,
+    },
+    otpExpiry: {
+      type: Date,
+    },
   },
-  { timestaps: true }
+  { timestamps: true } 
 );
+
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;

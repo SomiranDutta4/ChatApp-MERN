@@ -4,11 +4,14 @@ import { AppContext } from './Context/ContextProvider';
 const Homepage = ({ }) => {
   const { User } = useContext(AppContext)
   const navigate = useNavigate();
-  useEffect(() => {
-    if (User) {
+
+  const handleTry = () => {
+    if (!User || !User.token) {
       navigate('/Login');
+    } else {
+      navigate('/Chat');
     }
-  }, [])
+  }
 
 
   return (
@@ -21,7 +24,7 @@ const Homepage = ({ }) => {
           ChatNgine</h1>
 
         <div class="link-button-container">
-          <Link to="/Login" target="_blank"><button class="link-btn">Try Now</button></Link>
+          <button onClick={handleTry} class="link-btn">Try Now</button>
         </div>
       </div>
       <footer class="footer-container">

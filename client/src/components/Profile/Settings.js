@@ -1,404 +1,202 @@
 import React, { useState, useEffect, useContext } from 'react';
-import './SettingStyle.css'
 import { AppContext } from '../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-
-import Container from '@mui/material/Container';
-import { Box, Button, Grid2 } from '@mui/material';
 import images from '../../assets/imgSrc';
 
-const SettingsPage = ({ setloadAll, setSingleChat }) => {
-    const { User, setUser, setLoadedChats, setChats, setAccountPage, URL } = useContext(AppContext)
-    let navigate = useNavigate()
+const SettingsPage = ({ setUrl, setDataObj, setMethod }) => {
+    const { User, setUser, setLoadedChats, setChats, setAccountPage, URL } = useContext(AppContext);
+    const navigate = useNavigate();
 
-    const [name, setName] = useState({ prev: User.name, now: User.name })
-    const [Number, setNumber] = useState({ prev: User.contactNumber, now: User.contactNumber })
-    const [password, setPassword] = useState({ prev: '', now: '' })
-    const [oldPass, setOldPass] = useState({ prev: '', now: '' })
-    const [loaded, setLoaded] = useState(false)
-    const [hasEdited, setEdited] = useState(false)
-    const [isEditingName, setEditName] = useState(false)
-    const [isEditingNumber, setEditNumber] = useState(false)
-    const [isEditingPass, setEditPass] = useState(false)
-    const [isEditingOldPass, setEditOldPass] = useState(false)
-    const [error, setError] = useState('')
+    const [name, setName] = useState({ prev: User.name, now: User.name });
+    const [number, setNumber] = useState({ prev: User.contactNumber, now: User.contactNumber });
+    const [password, setPassword] = useState({ prev: '', now: '' });
+    const [oldPass, setOldPass] = useState({ prev: '', now: '' });
+    const [hasEdited, setEdited] = useState(false);
+    const [isEditing, setIsEditing] = useState({ name: false, number: false, pass: false, oldPass: false });
     const [showPics, setShowingPics] = useState(false);
 
-    let editSetNewDetails = async () => {
-        setEdited(true)
-        if (oldPass.now && !password.now) {
-            setError('password cannot be empty')
-            return;
-        }
-        if (!oldPass.now && password.now) {
-            setError('password cannot be empty')
-            return
-        }
-        let url = `http://localhost:2000/user/edit/account/?token=${User.token}`
+    useEffect(() => {
+        setName({ prev: User.name, now: User.name });
+        setNumber({ prev: User.contactNumber, now: User.contactNumber });
+    }, [User]);
+
+    const handleChange = (field, value) => {
+        setEdited(true);
+        if (field === 'name') setName(prev => ({ ...prev, now: value }));
+        if (field === 'number') setNumber(prev => ({ ...prev, now: value }));
+        if (field === 'pass') setPassword(prev => ({ ...prev, now: value }));
+        if (field === 'oldPass') setOldPass(prev => ({ ...prev, now: value }));
+    };
+
+    const toggleEdit = field => {
+        setIsEditing(prev => ({ name: false, number: false, pass: false, oldPass: false, [field]: !prev[field] }));
+    };
+
+    const cancelEdit = field => {
+        if (field === 'name') setName(prev => ({ prev: prev.prev, now: prev.prev }));
+        if (field === 'number') setNumber(prev => ({ prev: prev.prev, now: prev.prev }));
+        if (field === 'pass') setPassword({ prev: '', now: '' });
+        if (field === 'oldPass') setOldPass({ prev: '', now: '' });
+        toggleEdit(field);
+    };
+
+    const updateAccount = async () => {
+        if (oldPass.now && !password.now) return toast.error('New password cannot be empty');
+        if (!oldPass.now && password.now) return toast.error('Old password required');
+
         try {
-            let response = await fetch(url, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json', // Specify content type JSON
-                },
-                body: JSON.stringify({
+            const response = await axios.patch(`${URL}/user/edit/account/?token=${User.token}`, {
+                newName: name.now,
+                newNumber: number.now,
+                oldPassword: oldPass.now,
+                newPass: password.now,
+                newPic: User.pic,
+            });
+            console.log(response.status, response.data)
+            if (response.status === 202) {
+                console.log('OTP Sent Response:', response.data.message);
+                toast.info('OTP sent to your email. Please verify to continue.');
+                setUrl(`${URL}/user/edit/account/?token=${User.token}`);
+                setDataObj({
                     newName: name.now,
-                    newNumber: Number.now,
+                    newNumber: number.now,
                     oldPassword: oldPass.now,
                     newPass: password.now,
-                    newPic: User.pic
+                    newPic: User.pic,
                 })
-            })
-            if (response.status === 400) {
-                setError('Could not Update')
-                setTimeout(() => {
-                    setError('')
-                }, 2000)
-                return
-            } else if (response.status === 401) {
-                setUser('')
-                setChats([])
-                setLoadedChats([])
-                localStorage.removeItem('UserDate')
-                navigate('/Login')
-                return
-            } else if (response.status === 500) {
-                setError('Could not Update, we are trying to fix it')
-                setTimeout(() => {
-                    setError('')
-                }, 2000)
-                return
+                setMethod('PATCH');
+                navigate('/verify');
+                return;
+            } else if (response.status == 200) {
+                const updatedUser = { ...User, ...response.data.user };
+                setUser(updatedUser);
+                localStorage.setItem('UserData', JSON.stringify(updatedUser));
+                setEdited(false);
+                toast.success('Account updated');
+                setIsEditing({ name: false, number: false, pass: false, oldPass: false });
+            } else {
+                //error
             }
 
-            let data = await response.json()
-            let newUser = {
-                _id: User._id,
-                token: User.token,
-                name: data.user.name,
-                contactNumber: data.user.contactNumber,
-                pic: data.user.pic,
-                email: data.user.email,
-                isAdmin: data.user.isAdmin
-            }
-            setUser(newUser)
-            localStorage.setItem('UserData', JSON.stringify(newUser))
-            setEdited(false);
         } catch (error) {
-            setError('Could not Update')
-            setTimeout(() => {
-                setError('')
-            }, 2000)
+            console.error('Update Error:', error);
+            toast.error(error.response?.data?.message || 'Could not update');
         }
+    };
 
-    }
-
-    const changeName = (event) => {
-        setEdited(true)
-        if (isEditingName === true) {
-            let newName = name
-            newName.now = event.target.value
-            console.log(name)
-
-            setName({
-                prev: name.prev,
-                now: event.target.value
-            })
-            console.log(name)
-
-        }
-    }
-    const changeNumber = (event) => {
-        setEdited(true)
-        if (isEditingNumber === true) {
-            console.log(Number)
-
-            setNumber({
-                prev: Number.prev,
-                now: event.target.value
-            })
-            console.log(Number)
-        }
-    }
-    const changePass = (event) => {
-        setEdited(true)
-        if (isEditingPass === true) {
-            setPassword({
-                prev: password.prev,
-                now: event.target.value
-            })
-        }
-    }
-    const changeOldPass = (event) => {
-        setEdited(true)
-        if (isEditingOldPass === true) {
-            setOldPass({
-                prev: oldPass.prev,
-                now: event.target.value
-            })
-        }
-    }
-    const EditName = () => {
-        if (isEditingName === false) {
-            setEditName(true)
-            setEditNumber(false)
-            setEditPass(false)
-            setEditOldPass(false)
-        } else {
-            setName({
-                prev: name.now,
-                now: name.now
-            })
-            cancelAll()
-
-        }
-    }
-    const EditNumber = () => {
-        if (isEditingNumber === false) {
-            setEditName(false)
-            setEditNumber(true)
-            setEditPass(false)
-            setEditOldPass(false)
-        } else {
-            setNumber({
-                prev: Number.now,
-                now: Number.now
-            })
-            cancelAll()
-        }
-    }
-    const EditPass = () => {
-        if (isEditingPass === false) {
-            setPassword({
-                prev: '',
-                now: ''
-            })
-            setEditName(false)
-            setEditNumber(false)
-            setEditPass(true)
-            setEditOldPass(false)
-        } else {
-            setPassword({
-                prev: password.now,
-                now: password.now
-            })
-            cancelAll()
-        }
-    }
-    const editOldPassword = () => {
-        if (isEditingOldPass === false) {
-            setOldPass({
-                prev: oldPass.prev,
-                now: oldPass.prev
-            })
-            setEditName(false)
-            setEditNumber(false)
-            setEditPass(false)
-            setEditOldPass(true)
-        } else {
-            setOldPass({
-                prev: oldPass.now,
-                now: oldPass.now
-            })
-            cancelAll()
-        }
-
-    }
-    let cancelAll = () => {
-        setEditOldPass(false)
-        setEditName(false)
-        setEditNumber(false)
-        setEditPass(false)
-    }
-    const CancelName = () => {
-        // let cancelnewName=name
-        // cancelnewName.now=cancelnewName.prev
-        setName({
-            prev: name.prev,
-            now: name.prev
-        })
-        cancelAll()
-    }
-    const CancelNumber = () => {
-        // let cancelnewNumber=Number
-        // cancelnewNumber.now=cancelnewNumber.prev
-        setNumber({
-            prev: Number.prev,
-            now: Number.prev
-        })
-        cancelAll()
-    }
-    const CancelPass = () => {
-        // let cancelnewNumber=Number
-        // cancelnewNumber.now=cancelnewNumber.prev
-        setPassword({
-            prev: password.prev,
-            now: password.prev
-        })
-        cancelAll()
-    }
-    const CancelOldPass = () => {
-        // let cancelnewNumber=Number
-        // cancelnewNumber.now=cancelnewNumber.prev
-        setOldPass({
-            prev: oldPass.prev,
-            now: oldPass.prev
-        })
-        cancelAll()
-    }
-    const goBack = () => {
-        setloadAll(true)
-        setSingleChat(false)
-        setAccountPage(false)
-    }
-    const LogOut = () => {
-        localStorage.removeItem('UserData')
-        setChats([])
-        setUser('')
-        navigate('/Login')
-        window.location.reload()
-    }
-    useEffect(() => {
-        if (User && loaded === false) {
-            setName({ prev: User.name, now: User.name })
-            setNumber({ prev: User.contactNumber, now: User.contactNumber })
-            setLoaded(true)
-        }
-    })
-
-    // const images = [
-    //     { img: 'https://img.freepik.com/free-vector/blond-man-blue-eyes_24877-83661.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/gradient-avatar-illustration_23-2150891923.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/blond-man-with-eyeglasses-icon-isolated_24911-100831.jpg?ga=GA1.1.133026118.1735104670&semt=ais_hybrid' },
-    //     { img: 'https://img.freepik.com/free-vector/hand-drawn-people-with-dreadlocks-illustration_23-2149752847.jpg?ga=GA1.1.133026118.1735104670&semt=ais_hybrid' },
-    //     { img: 'https://img.freepik.com/premium-vector/portrait-handsome-mature-male-teacher_684058-1396.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/premium-vector/cartoon-man-avatar-illustration-dark-green-polo-shirt_932695-5548.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/premium-vector/businessman-worker-occupation-success_18591-5276.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/young-woman-white_25030-39546.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-photo/androgynous-avatar-non-binary-queer-person_23-2151100259.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/hand-drawn-ethnic-beauty-illustration_23-2150216591.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-psd/3d-illustration-person-with-sunglasses_23-2149436178.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-psd/3d-rendering-hair-style-avatar-design_23-2151869153.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/purple-man-with-blue-hair_24877-82003.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671122.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/blond-man-smiling_24877-82858.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/free-vector/businessman-character-avatar-isolated_24877-60111.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/premium-vector/pretty-red-haired-caucasian-girl-semi-flat-vector-character-head-positive-long-haired-lady-editable-cartoon-avatar-icon-face-emotion-colorful-spot-illustration-web-graphic-design-animation_151150-16475.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     { img: 'https://img.freepik.com/premium-vector/vector-illustration-winter-boy-concept-hello-winter-avataka-social-networks_469123-519.jpg?ga=GA1.1.133026118.1735104670&semt=ais_authors_boost' },
-    //     // {img:''}
-    // ]
-    const changePic = async (url) => {
+    const changePic = async url => {
         try {
             const response = await axios.post(`${URL}/user/update/pic/?token=${User.token}&url=${url}`);
-
             if (response.status === 200) {
                 const updatedUser = { ...User, pic: url };
                 setUser(updatedUser);
                 localStorage.setItem('UserData', JSON.stringify(updatedUser));
+                toast.success('Profile picture updated');
                 setShowingPics(false);
-                toast.success("Profile picture updated successfully!");
-            } else {
-                toast.error("Failed to update profile picture.");
             }
-        } catch (error) {
-            toast.error("An error occurred while updating the picture.");
+        } catch {
+            toast.error('Could not update picture');
         }
     };
 
+    const logOut = () => {
+        localStorage.removeItem('UserData');
+        setChats([]);
+        setUser(null);
+        navigate('/Login');
+        window.location.reload();
+    };
+
+    const goBack = () => {
+        navigate('/Chat')
+        // setloadAll(true);
+        // setSingleChat(false);
+        // setAccountPage(false);
+    };
 
     if (showPics) {
         return (
-            <Container>
-                <Box sx={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                    <Button onClick={() => { setShowingPics(false) }} sx={{ color: 'white' }}>Back</Button>
-                </Box>
-                {/* <Box> */}
-                <Grid2 container spacing={2}>
-                    {images.map((item) => (
-                        <Grid2 size={{ xs: 6, sm: 4, md: 3 }} key={item}>
-                            <img onClick={() => { changePic(item) }} className='picsSelect' style={{ borderRadius: '50%' }}
-                                srcSet={`${item}`}
-                                src={`${item}`}
-                                // alt={item.title}
-                                loading="lazy"
-                            />
-                        </Grid2>
+            <div className="p-6 text-white bg-[#1e1e1e] h-screen w-screen">
+                <button className="mb-4 text-sm text-gray-400 hover:underline" onClick={() => setShowingPics(false)}>← Back</button>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                    {images.map((img, i) => (
+                        <img
+                            key={i}
+                            src={img}
+                            alt="avatar"
+                            className="rounded-full w-24 h-24 object-cover cursor-pointer border-2 border-transparent hover:border-blue-500"
+                            onClick={() => changePic(img)}
+                        />
                     ))}
-                </Grid2>
-                {/* </Box> */}
-            </Container>
-        )
-    } else {
-        return (
-            <div className='ProfilePage-Container'>
-
-                {error !== '' &&
-                    <div className='errorDiv-Settings'>
-                        <span>{error}</span>
-                    </div>
-                }
-                <div className='LogOut-Account'>
-                    <button onClick={LogOut} className='back-btn-Acc'>LogOut</button>
-                </div>
-                <div className='backDiv-Account'>
-                    <button onClick={goBack} className='back-btn-Acc'>Back→</button>
-                </div>
-                <div className='ProfilePage Account'>
-                    <div className='changeDiv-profilePhoto Account'>
-                        <div className='ProfilePhotoDiv'>
-                            <img onClick={() => { setShowingPics(true) }} className='PfP' src={User.pic}></img>
-                        </div>
-                        <div className='BasicDetails-Account'>
-                            <div className='displayDetails-profile'>name: <span className='Details-span' style={{ color: 'blue' }}>{User.name}</span></div>
-                            <div className='displayDetails-profile'>number: <span className='Details-span' style={{ color: 'blue' }}>{User.contactNumber}</span></div>
-                            <div className='displayDetails-profile'>email: <span className='Details-span' style={{ color: 'blue' }}>{User.email}</span></div>
-                        </div>
-                    </div>
-
-                    <div className='ChangeDiv-Profile Account'>
-                        {User.name &&
-                            <input onChange={changeName} className={`editField-edit name ${isEditingName} `} value={name.now}></input>
-                        }
-                        <button onClick={EditName} className='EditBtn-profilePage'>{isEditingName === true ? 'Save' : 'Edit'}</button>
-                        {isEditingName === true &&
-                            <button onClick={CancelName} className='CancelBtn-profileBtn'>❌</button>}
-                    </div>
-
-                    <div className='ChangeDiv-Profile Account'>
-                        {User.contactNumber &&
-                            <input onChange={changeNumber} className={`editField-edit number ${isEditingNumber} `} value={Number.now}></input>
-                        }
-                        <button onClick={EditNumber} className='EditBtn-profilePage'>{isEditingNumber === true ? 'Save' : 'Edit'}</button>
-                        {isEditingNumber === true &&
-                            <button onClick={CancelNumber} className='CancelBtn-profileBtn'>❌</button>}
-                    </div>
-
-                    <div className='ChangeDiv-Profile Account'>
-                        <input placeholder='Old Password' onChange={changeOldPass} className={`editField-edit password ${isEditingOldPass} `} value={oldPass.now}></input>
-                        <button onClick={editOldPassword} className='EditBtn-profilePage'>{isEditingOldPass === true ? 'Save' : 'Edit'}</button>
-                        {isEditingOldPass === true &&
-                            <button onClick={CancelOldPass} className='CancelBtn-profileBtn'>❌</button>}
-                    </div>
-
-                    <div className='ChangeDiv-Profile Account'>
-                        <input placeholder='New Password' onChange={changePass} className={`editField-edit password ${isEditingPass} `} value={password.now}></input>
-                        <button onClick={EditPass} className='EditBtn-profilePage'>{isEditingPass === true ? 'Save' : 'Edit'}</button>
-                        {isEditingPass === true &&
-                            <button onClick={CancelPass} className='CancelBtn-profileBtn'>❌</button>}
-                    </div>
-
-                    {hasEdited === true &&
-                        <div className='ChangeDiv-Profile SaveDiv'>
-                            <button onClick={editSetNewDetails} className='saveBtn-Acc'>Update Account</button>
-                        </div>
-                    }
                 </div>
             </div>
         );
     }
 
-    ;
-}
+    return (
+        <div className="bg-[#1e1e1e] text-white w-screen h-screen flex justify-center items-center px-4 py-10">
+            <div className="w-full max-w-lg">
+                {/* {error && <div className="bg-red-600 text-sm px-4 py-2 rounded mb-4 text-center">{error}</div>} */}
+
+                <div className="flex justify-between mb-6">
+                    <button onClick={goBack} className="text-sm px-4 py-2 border border-gray-600 rounded hover:bg-gray-700">← Back</button>
+                    <button onClick={logOut} className="text-sm px-4 py-2 border border-red-600 text-red-400 rounded hover:bg-red-700">Logout</button>
+                </div>
+
+                <div className="flex flex-col items-center mb-8">
+                    <img
+                        src={User.pic}
+                        alt="profile"
+                        className="rounded-full w-28 h-28 object-cover cursor-pointer border border-gray-600"
+                        onClick={() => setShowingPics(true)}
+                    />
+                    <div className="mt-2 text-sm text-gray-400">Click to change profile picture</div>
+                </div>
+
+                <div className="space-y-5">
+                    {['name', 'number', 'oldPass', 'pass'].map(field => (
+                        <div key={field} className="flex items-center gap-3">
+                            <input
+                                type={field.includes('Pass') ? 'password' : 'text'}
+                                placeholder={field === 'oldPass' ? 'Old Password' : field === 'pass' ? 'New Password' : ''}
+                                value={field === 'name' ? name.now : field === 'number' ? number.now : field === 'oldPass' ? oldPass.now : password.now}
+                                onChange={e => handleChange(field, e.target.value)}
+                                className="flex-1 px-3 py-2 bg-[#2a2a2a] text-white rounded border border-gray-600 focus:outline-none disabled:opacity-60"
+                                disabled={!isEditing[field]}
+                            />
+                            <button
+                                onClick={() => toggleEdit(field)}
+                                className="text-sm px-3 py-1 border border-gray-600 rounded hover:bg-gray-700"
+                            >
+                                {isEditing[field] ? 'Save' : 'Edit'}
+                            </button>
+                            {isEditing[field] && (
+                                <button
+                                    onClick={() => cancelEdit(field)}
+                                    className="text-sm px-3 py-1 border border-gray-600 rounded hover:bg-red-700"
+                                >
+                                    ❌
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {hasEdited && (
+                    <div className="mt-6">
+                        <button
+                            onClick={updateAccount}
+                            className="w-full text-sm px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
+                        >
+                            Update Account
+                        </button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+};
 
 export default SettingsPage;

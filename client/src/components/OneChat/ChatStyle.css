@@ -215,19 +215,7 @@ color: rgb(182, 182, 234);
     border-radius: 4px;
     margin-right: 10px;
   }
-  
-  .chatInputDiv button {
-    padding: 8px 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .chatInputDiv button:hover {
-    background-color: #0056b3;
-  }
+
   
   .vertical-tabs-loading {
     display: flex;

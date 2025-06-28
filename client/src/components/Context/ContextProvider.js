@@ -2,14 +2,14 @@ import React, { createContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client'
-// const ENDPOINT = 'http://localhost:2000'
-const ENDPOINT='https://chatapp-mern-cq2n.onrender.com'
+const ENDPOINT = 'http://localhost:2000'
+// const ENDPOINT = 'https://chatapp-mern-cq2n.onrender.com'
 var socket;
 const AppContext = createContext()
 
 
 const ContextProvider = ({ children }) => {
-    const navigate = useNavigate()
+  const navigate = useNavigate()
   // const navigate=useNavigate()
   let UserData = localStorage.getItem('UserData')
   let UserD
@@ -122,6 +122,7 @@ const ContextProvider = ({ children }) => {
       socket.on('connected', () => setSocketConnected(true))
     }
   })
+
   let getChats = async () => {
     if (!User || !User.token || !User._id) {
       setUser('')
@@ -132,34 +133,34 @@ const ContextProvider = ({ children }) => {
       return
     }
 
-    let AuthUrl = URL + `/user/auth/?token=${User.token}`;
+    // let AuthUrl = URL + `/user/auth/?token=${User.token}`;
     let url = URL + `/chat/get/all/?_id=${User._id}&token=${User.token}`;
 
-    let isFoundLocal = false
+    // let isFoundLocal = false
 
-    if (AllChats && AllChats != '') {
-      isFoundLocal = true
-    }
+    // if (AllChats && AllChats != '') {
+    //   isFoundLocal = true
+    // }
 
-    if (isFoundLocal == true) {
-      try {
-        let response = await fetch(AuthUrl)
-        if (response.status == 200) {
+    // if (isFoundLocal == true) {
+    //   try {
+    //     let response = await fetch(AuthUrl)
+    //     if (response.status == 200) {
 
-        } else if (response.status == 401) {
-          localStorage.removeItem('UserData')
-          setUser('')
-          setChats([])
-          navigate('/Login')
-        } else {
-          setLoading(true)
-        }
-        return
-      } catch (error) {
-      }
-    } else {
+    //     } else if (response.status == 401) {
+    //       localStorage.removeItem('UserData')
+    //       setUser('')
+    //       setChats([])
+    //       navigate('/Login')
+    //     } else {
+    //       setLoading(true)
+    //     }
+    //     return
+    //   } catch (error) {
+    //   }
+    // } else {
       setLoading(true)
-    }
+    // }
 
     try {
       let response = await fetch(url, {
@@ -188,7 +189,6 @@ const ContextProvider = ({ children }) => {
             chat.unseenMsg = true;
           }
         });
-
         newchats.sort((a, b) => {
           let dateA = new Date(a.latestMessage.createdAt);
           let dateB = new Date(b.latestMessage.createdAt);
@@ -196,6 +196,7 @@ const ContextProvider = ({ children }) => {
         });
         setChats(newchats)
         setLocalFound(newchats)
+
       } else {
         return
       }
@@ -212,7 +213,7 @@ const ContextProvider = ({ children }) => {
     <AppContext.Provider value={{
       AllChats, setChats, isLoading, setLoading, LocalFound, setLocalFound, NewMEssageHandler, messageLoading, setMsgLoadig, URL,
       LoadedChats, setLoadedChats, User, setUser, isSending, setSending, SeeMessage, showingBot, setShowingBot, messageEnd,
-      clickedChat, setClicked, AccountPage, setAccountPage, socket, socketConnected, setSocketConnected, messages, setMessages,getChats
+      clickedChat, setClicked, AccountPage, setAccountPage, socket, socketConnected, setSocketConnected, messages, setMessages, getChats
     }}>
       {children}
     </AppContext.Provider>

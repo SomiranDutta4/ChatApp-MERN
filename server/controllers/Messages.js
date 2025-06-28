@@ -3,104 +3,69 @@ const Message = require('../Models/Message')
 const Chat = require('../Models/Chat')
 const User = require('../Models/User')
 
-
 module.exports.sendMessage = async function (req, res) {
-    // let isCreatedNew = false
-    if (!req.body._id || !req.body.chatId || !req.body.content) {
-        return res.status(400).json({ message: 'Missing required fields' });
-    }
-    let newMessageId = new mongoose.Types.ObjectId()
-    let users = [req.body._id]
-    if (req.body.reqId != req.user._id) {
-        users.push(req.body.reqId)
-    }
     try {
-        let chat = await Chat.findOne({ _id: req.body.chatId })
-            // .populate({
-            //     path: 'latestMessage',
-            //     populate: {
-            //         path: 'sender',
-            //         select: '-password'
-            //     }
-            // })
-        // .populate('users','-password')
-        // .populate('messages.sender','-password')
-        let newMsg = await Message.create({
+        const { _id, chatId, content, reqId } = req.body;
+
+        if (!_id || !chatId || (!content && !req.file)) {
+            return res.status(400).json({ message: 'Missing required fields' });
+        }
+
+        const newMessageId = new mongoose.Types.ObjectId();
+        let users = [_id];
+        if (reqId !== req.user._id) users.push(reqId);
+
+        const chat = await Chat.findOne({ _id: chatId });
+
+        const messageData = {
             _id: newMessageId,
-            sender: req.body._id,
-            content: req.body.content,
-            chat: req.body.chatId,
+            sender: _id,
+            content: content || '',
+            chat: chatId,
             isDeleted: false,
-            readBy: [req.user._id]
-        })
+            readBy: [req.user._id],
+        };
+
+        if (req.file) {
+            messageData.media = {
+                filename: req.file.filename,
+                mimetype: req.file.mimetype,
+                path: req.file.path,
+            };
+        }
+
+        const newMsg = await Message.create(messageData);
         newMsg.sender = req.user;
+
         if (chat) {
-            if(chat.isGroupChat&&!chat.users.includes(req.body._id)){
-                return res.status(400).json({ message: 'You are not a member of this group'});
+            if (chat.isGroupChat && !chat.users.includes(_id)) {
+                return res.status(400).json({ message: 'You are not a member of this group' });
             }
-            chat.latestMessage = newMessageId
-            await chat.save()
-            return res.status(200).json({ message: 'sent message', "chat": chat, newMsg: newMsg })
 
+            chat.latestMessage = newMessageId;
+            await chat.save();
 
-            //
-
+            return res.status(200).json({ message: 'sent message', chat, newMsg });
         } else {
-            let newChat = await Chat.create({
-                _id: req.body.chatId,
+            const newChat = await Chat.create({
+                _id: chatId,
                 chatName: 'randomXYZchatApp.123456789@#$%^&*()_+',
                 isGroupChat: false,
                 users: users,
                 pastUsers: [],
                 messages: [],
                 latestMessage: newMessageId
-            })
+            });
+
             newChat.latestMessage = newMsg;
 
-            return res.status(200).json({ message: 'sent message', "chat": newChat, newMsg: newMsg })
+            return res.status(200).json({ message: 'sent message', chat: newChat, newMsg });
         }
-
-        // await Message.create({
-        //     _id: newMessageId,
-        //     sender: req.body._id,
-        //     content: req.body.content,
-        //     chat: req.body.chatId,
-        //     isDeleted: false,
-        //     readBy: [req.user._id]
-        // })
-    } catch (error) {
-
-        return res.status(500).json({ message: err })
+    } catch (err) {
+        console.error("sendMessage error:", err);
+        return res.status(500).json({ message: err.message || 'Server error' });
     }
-    // try {
-    //     let chatToReturn = await Chat.findById(req.body.chatId)
-    //         // .populate('users')
-    // // .select('latestMessage')
-    // .populate({
-    //     path: 'latestMessage',
-    //     populate: {
-    //         path: 'sender',
-    //         select: '-password'
-    //     }
-    // })
-    //     // .populate({
-    //     //     path:'latestMessage',
-    //     //     populate:{
-    //     //         path:'readBy',
-    //     //         select:'-password'
-    //     //     }
-    //     // })
-
-    //     if (isCreatedNew == false) {
-    //         return res.status(200).json({ message: 'sent message', chat: chatToReturn })
-    //     } else {
-    //         return res.status(300).json({ message: 'created a new chat and sent message', chat: chatToReturn })
-    //     }
-
-    // } catch (error) {
-    //     return res.status(500).json({ message: 'error' })
-    // }
-}
+};
 
 
 module.exports.seeMessage = function (req, res) {
