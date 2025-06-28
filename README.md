@@ -1,5 +1,5 @@
 deployement:
-'https://chat-app-mern-sandy-delta.vercel.app/'
+https://chat-app-mern-sandy-delta.vercel.app/
 Chatting App I made with MERN
 
 frontEnd-React
