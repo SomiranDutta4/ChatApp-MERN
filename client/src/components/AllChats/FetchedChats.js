@@ -3,10 +3,14 @@ import IndChat from './indChats/IndChat'
 import LoadingScreen from './LoadingScreen'
 import { AppContext } from '../Context/ContextProvider'
 import { faRobot } from '@fortawesome/free-solid-svg-icons'
+import { useNavigate } from 'react-router-dom';
+import { faMessage } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleChat }) => {
 
   const { AllChats, isLoading, setShowingBot, setClicked, getChats } = useContext(AppContext)
+  const navigate = useNavigate();
 
   const loadBotAcc = () => {
     setClicked('')
@@ -57,6 +61,13 @@ const FetchedChats = ({ isAdding, isSearch, setloadAll, isSingleChat, setSingleC
           <span className='BotText'>Talk with Ai </span>
           <FontAwesomeIcon icon={faRobot}></FontAwesomeIcon>
         </div>} */}
+      <div
+        onClick={() => navigate('/feedback')}
+        className="fixed bottom-6 right-6 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg cursor-pointer transition-all z-50"
+        title="Send Feedback"
+      >
+        <FontAwesomeIcon icon={faMessage} size="lg" />
+      </div>
 
     </div>
   )

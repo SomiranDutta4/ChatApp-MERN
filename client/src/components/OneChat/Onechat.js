@@ -138,7 +138,7 @@ const Onechat = ({ setSingleChat, setloadAll, windowWidth }) => {
       roomId,
     });
 
-    navigate(`/video-call/${roomId}`);
+    window.open(`/video-call/${roomId}`);
   };
 
   const voiceCall = () => {
@@ -206,52 +206,63 @@ const Onechat = ({ setSingleChat, setloadAll, windowWidth }) => {
       ) : (
         <>
           {/* TOP BAR */}
-          <div className='flex justify-between p-2'>
-            <div className='flex flex-row align-center'>
+          {/* TOP BAR */}
+          <div className="flex justify-between items-center p-2 border-b border-gray-700 bg-[#1e1e1e]">
+            <div className="flex items-center">
               {windowWidth <= 850 && (
-                <div className='flex align-center mr-2 ml-1'>
-                  <button onClick={clickedBack} className='backbtn'>&#8592;</button>
-                </div>
+                <button
+                  onClick={clickedBack}
+                  className="text-white text-xl mr-3 ml-1 p-1 hover:bg-gray-700 rounded-full"
+                >
+                  &#8592;
+                </button>
               )}
-              <div onClick={() => setShowChat(true)} className='chatDetails cursor-pointer'>
-                <div className='chatDpDiv'>
-                  <div className='chatDp'>
-                    <img src={clickedChat.pic} alt="chat" />
-                  </div>
+
+              <div
+                onClick={() => setShowChat(true)}
+                className="flex items-center gap-3 cursor-pointer"
+              >
+                <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-500">
+                  <img
+                    src={clickedChat.pic}
+                    alt="chat"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
-                <div className='chatNameDiv'>
-                  <div className='chatName'>
-                    <span className='MainChat-chatName'>{clickedChat.chatName}</span>
-                    <div className='contact-div-onechat'>
-                      {clickedChat.isGroupChat
-                        ? clickedChat.number.map((member, i) => (
-                          <span key={i}>{member}{i !== clickedChat.number.length - 1 ? ', ' : ' '}</span>
-                        ))
-                        : (clickedChat.number || clickedChat.contactNumber)}
-                    </div>
+                <div>
+                  <div className="font-medium text-white text-[15px]">{clickedChat.chatName}</div>
+                  <div className="text-gray-400 text-sm leading-tight max-w-[200px] truncate">
+                    {clickedChat.isGroupChat
+                      ? clickedChat.number.map((member, i) => (
+                        <span key={i}>
+                          {member}
+                          {i !== clickedChat.number.length - 1 ? ', ' : ''}
+                        </span>
+                      ))
+                      : clickedChat.number || clickedChat.contactNumber}
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-row items-center gap-3 px-2 py-1">
+            <div className="flex items-center gap-3 px-2 py-1">
               <button
                 onClick={videoCall}
                 title="Video Call"
-                className="p-2 rounded-full hover:text-green-400 transition duration-200"
+                className="p-2 rounded-full text-gray-300 hover:text-green-400 transition duration-200"
               >
                 <FontAwesomeIcon icon={faVideo} size="lg" />
               </button>
               <button
                 onClick={voiceCall}
                 title="Voice Call"
-                className="p-2 rounded-full hover:text-blue-400 transition duration-200"
+                className="p-2 rounded-full text-gray-300 hover:text-blue-400 transition duration-200"
               >
                 <FontAwesomeIcon icon={faPhone} size="lg" />
               </button>
             </div>
-
           </div>
+
 
           {/* CHAT MESSAGES */}
           <div className='chatDisplayContainer'>

@@ -172,20 +172,22 @@ io.on('connection', (socket) => {
   socket.on('join-video-room', ({ roomId, userId }) => {
     socket.join(roomId);
     console.log(`${userId} joined video room ${roomId}`);
+    socket.to(roomId).emit('other-user-joined');
+    // }
+  });
+  
+  socket.on('leave-video-room', ({ roomId, userId }) => {
+    try {
+      socket.leave(roomId);
+      console.log(`${userId} left video room ${roomId}`);
 
-    if (!videoRoomUsers[roomId]) {
-      videoRoomUsers[roomId] = [];
-    }
-
-    if (!videoRoomUsers[roomId].includes(userId)) {
-      videoRoomUsers[roomId].push(userId);
-    }
-
-    // If another user is already in the room, notify the new joiner
-    if (videoRoomUsers[roomId].length > 1) {
-      socket.to(roomId).emit('other-user-joined');
+      // Inform the other user in the room (if any)
+      socket.to(roomId).emit('user-left-video-room', { userId });
+    } catch (error) {
+      console.error('leave-video-room error:', error);
     }
   });
+
 
 
   // Handle WebRTC offer

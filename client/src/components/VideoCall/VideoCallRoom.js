@@ -1,16 +1,60 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { AppContext } from '../Context/ContextProvider';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faMicrophone, faMicrophoneSlash, faVideo, faVideoSlash, faPhone } from '@fortawesome/free-solid-svg-icons';
 
 const VideoCallRoom = () => {
   const { roomId } = useParams();
   const localVideoRef = useRef(null);
   const remoteVideoRef = useRef(null);
   const peerConnection = useRef(null);
+  const localStream = useRef(null);
   const { socket, User } = useContext(AppContext);
   const [isInitiator, setIsInitiator] = useState(false);
+  const isRemoteDescriptionSet = useRef(false);
+  const pendingCandidates = useRef([]);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
+  const navigate = useNavigate();
+
+  const endCall = (cutByMe) => {
+    toast.info("Call ended");
+    if (localStream.current) {
+      localStream.current.getTracks().forEach(track => track.stop());
+    }
+    if (peerConnection.current) {
+      peerConnection.current.close();
+    }
+    if (cutByMe) {
+      socket.emit('leave-video-room', { roomId, userId: User._id });
+    }
+    setTimeout(() => {
+      navigate('/feedback?reload=true');
+    }, 2000)
+  };
+
+  const toggleMute = () => {
+    const audioTrack = localStream.current?.getAudioTracks()[0];
+    if (audioTrack) {
+      audioTrack.enabled = !audioTrack.enabled;
+      setIsMuted(!audioTrack.enabled);
+    }
+  };
+
+  const toggleVideo = () => {
+    const videoTrack = localStream.current?.getVideoTracks()[0];
+    if (videoTrack) {
+      videoTrack.enabled = !videoTrack.enabled;
+      setIsVideoOff(!videoTrack.enabled);
+    }
+  };
 
   useEffect(() => {
+    if (!socket) return;
+
     const servers = {
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     };
@@ -18,76 +62,81 @@ const VideoCallRoom = () => {
     const pc = new RTCPeerConnection(servers);
     peerConnection.current = pc;
 
-    // Get media and add to peer connection
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then(stream => {
-      localVideoRef.current.srcObject = stream;
-      if (peerConnection.current.signalingState !== 'closed') {
-        stream.getTracks().forEach(track => peerConnection.current.addTrack(track, stream));
-      } else {
-        console.warn('PeerConnection is closed. Skipping track addition.');
-      }
-    }).catch(err => {
-      console.error('Media error:', err);
-    });
+    navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+      .then(stream => {
+        localStream.current = stream;
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
 
-    // Receive remote media
+        if (pc.signalingState !== 'closed') {
+          stream.getTracks().forEach(track => pc.addTrack(track, stream));
+        }
+      })
+      .catch(err => {
+        console.error('Media error:', err);
+      });
+
     pc.ontrack = ({ streams: [stream] }) => {
-      console.log('Remote stream received');
       remoteVideoRef.current.srcObject = stream;
     };
 
-    // Send ICE candidates
     pc.onicecandidate = (e) => {
       if (e.candidate) {
         socket.emit('ice-candidate', { candidate: e.candidate, roomId });
       }
     };
 
-    // Join room
     socket.emit('join-video-room', { roomId, userId: User._id });
 
-    // Listen for new peer (makes this user initiator)
     socket.on('other-user-joined', () => {
-      console.log('Other user joined. I will create the offer.');
       setIsInitiator(true);
     });
 
-    // Offer received from initiator
     socket.on('offer', async ({ sdp }) => {
-      console.log('Received offer');
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      localVideoRef.current.srcObject = stream;
+      localStream.current = stream;
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+      }
       stream.getTracks().forEach(track => pc.addTrack(track, stream));
 
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      isRemoteDescriptionSet.current = true;
+
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
       socket.emit('answer', { sdp: answer, roomId });
+
+      pendingCandidates.current.forEach(candidate => {
+        pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+      });
+      pendingCandidates.current = [];
     });
 
-    // Answer received from callee
     socket.on('answer', async ({ sdp }) => {
-      console.log('Received answer');
+      if (pc.signalingState === 'stable') {
+        console.warn('Already in stable state. Skipping answer.');
+        return;
+      }
       await pc.setRemoteDescription(new RTCSessionDescription(sdp));
+      isRemoteDescriptionSet.current = true;
+
+      pendingCandidates.current.forEach(candidate => {
+        pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+      });
+      pendingCandidates.current = [];
     });
 
-    // ICE candidate received
     socket.on('ice-candidate', ({ candidate }) => {
-      console.log('Received ICE candidate');
       if (candidate) {
-        pc.addIceCandidate(new RTCIceCandidate(candidate));
+        if (isRemoteDescriptionSet.current) {
+          pc.addIceCandidate(new RTCIceCandidate(candidate)).catch(console.error);
+        } else {
+          pendingCandidates.current.push(candidate);
+        }
       }
     });
-
-    // Delay and then create offer if initiator
-    const offerTimeout = setTimeout(async () => {
-      if (isInitiator) {
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        socket.emit('offer', { sdp: offer, roomId });
-        console.log('Created and sent offer');
-      }
-    }, 1000);
 
     return () => {
       peerConnection.current?.close();
@@ -95,16 +144,81 @@ const VideoCallRoom = () => {
       socket.off('answer');
       socket.off('ice-candidate');
       socket.off('other-user-joined');
-      clearTimeout(offerTimeout);
     };
+  }, [socket, User._id, roomId]);
+
+  useEffect(() => {
+    const createOffer = async () => {
+      if (!isInitiator || !peerConnection.current) return;
+
+      try {
+        const offer = await peerConnection.current.createOffer();
+        await peerConnection.current.setLocalDescription(offer);
+        socket.emit('offer', { sdp: offer, roomId });
+        console.log('Created and sent offer');
+      } catch (error) {
+        console.error('Error creating offer:', error);
+      }
+    };
+    createOffer();
   }, [isInitiator]);
 
+  useEffect(() => {
+    if (!socket) return;
+    socket.on('user-left-video-room', () => {
+      endCall(false);
+    });
+    return () => {
+      socket.off('user-left-video-room');
+    };
+  }, [socket]);
+
   return (
-    <div className="video-call-container flex flex-col items-center gap-4 p-4 bg-black min-h-screen text-white">
-      <h2 className="text-xl mb-2">Video Call Room</h2>
-      <div className="flex gap-4 justify-center w-full">
-        <video ref={localVideoRef} autoPlay muted playsInline className="w-1/2 h-[300px] bg-gray-900 rounded-lg" />
-        <video ref={remoteVideoRef} autoPlay playsInline className="w-1/2 h-[300px] bg-gray-900 rounded-lg" />
+    <div className="video-call-container relative flex flex-col items-center justify-center bg-black min-h-screen w-screen overflow-hidden text-white">
+      <ToastContainer position="top-center" autoClose={2000} hideProgressBar pauseOnHover={false} />
+
+      {/* Remote Video Fullscreen */}
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover z-0"
+      />
+
+      {/* Local Video Small Preview */}
+      <video
+        ref={localVideoRef}
+        autoPlay
+        muted
+        playsInline
+        className="absolute bottom-6 right-6 w-40 h-28 bg-gray-900 rounded-lg border-2 border-white z-10 object-cover"
+      />
+
+      {/* Control Buttons */}
+      <div className="absolute bottom-8 flex gap-6 justify-center z-20">
+        <button
+          onClick={toggleMute}
+          className="w-12 h-12 flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition"
+          title="Toggle Mute"
+        >
+          <FontAwesomeIcon icon={isMuted ? faMicrophoneSlash : faMicrophone} />
+        </button>
+
+        <button
+          onClick={toggleVideo}
+          className="w-12 h-12 flex items-center justify-center rounded-full bg-yellow-600 hover:bg-yellow-700 shadow-lg transition"
+          title="Toggle Video"
+        >
+          <FontAwesomeIcon icon={isVideoOff ? faVideoSlash : faVideo} />
+        </button>
+
+        <button
+          onClick={() => endCall(true)}
+          className="w-12 h-12 flex items-center justify-center rounded-full bg-red-600 hover:bg-red-700 shadow-lg transition"
+          title="End Call"
+        >
+          <FontAwesomeIcon icon={faPhone} />
+        </button>
       </div>
     </div>
   );
