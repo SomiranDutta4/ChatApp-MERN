@@ -2,8 +2,8 @@ import React, { createContext, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 // import { useNavigate } from 'react-router-dom';
 import { io } from 'socket.io-client'
-// const ENDPOINT = 'http://localhost:2000'
-const ENDPOINT = 'https://chatapp-mern-cq2n.onrender.com'
+const ENDPOINT = 'http://localhost:2000'
+// const ENDPOINT = 'https://chatapp-mern-cq2n.onrender.com'
 var socket;
 const AppContext = createContext()
 
@@ -86,7 +86,7 @@ const ContextProvider = ({ children }) => {
       }
     }
     setSending(true)
-    let seenUrl = `http://localhost:2000/message/see/?token=${User.token}`
+    let seenUrl = `${ENDPOINT}/message/see/?token=${User.token}`
     try {
       let result = await fetch(seenUrl, {
         method: 'PATCH',
