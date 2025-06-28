@@ -86,7 +86,6 @@ Built with the **MERN stack** + **Socket.IO** + **WebRTC**, this project is idea
 | **Database** | MongoDB with Mongoose                          |
 | **Auth**     | JWT + Firebase (Google Login)                  |
 | **Realtime** | Socket.IO + WebRTC                             |
-| **Deployment** | Vercel (frontend), Render/Heroku (backend) |
 
 ---
 
