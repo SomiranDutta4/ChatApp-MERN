@@ -244,23 +244,19 @@ const Onechat = ({ setSingleChat, setloadAll, windowWidth }) => {
                 </div>
               </div>
             </div>
+            {!clickedChat.isGroupChat &&
+              <div className="flex items-center gap-3 px-2 py-1">
 
-            <div className="flex items-center gap-3 px-2 py-1">
-              <button
-                onClick={videoCall}
-                title="Video Call"
-                className="p-2 rounded-full text-gray-300 hover:text-green-400 transition duration-200"
-              >
-                <FontAwesomeIcon icon={faVideo} size="lg" />
-              </button>
-              <button
-                onClick={voiceCall}
-                title="Voice Call"
-                className="p-2 rounded-full text-gray-300 hover:text-blue-400 transition duration-200"
-              >
-                <FontAwesomeIcon icon={faPhone} size="lg" />
-              </button>
-            </div>
+                <button
+                  onClick={videoCall}
+                  title="Video Call"
+                  className="p-2 rounded-full text-gray-300 hover:text-green-400 transition duration-200"
+                >
+                  <FontAwesomeIcon icon={faVideo} size="lg" />
+                </button>
+
+              </div>
+            }
           </div>
 
 
